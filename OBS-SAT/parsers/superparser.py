@@ -4,7 +4,7 @@ import numpy as np
 from georinex import *
 import os
 from multiprocessing import Queue, Process
-from Orbit import absorb
+
 
 
 # Objective : To read a RINEX observation file for processing
@@ -67,7 +67,7 @@ def OPEN(path: str, satID="G"):
 
     if "MO" in path.upper() or "GO" in path.upper():
         try:
-            return rinexheader(path_to_obs), rinexobs(path, use=satID)
+            return rinexheader(path), rinexobs(path, use=satID)
 
         except:
             print("Cannot open the RINEX file! Check if you have permission to read the file")
@@ -119,27 +119,24 @@ def INTERSECTION(obs, nav) -> np.array:
 # NOTE: If you put your files in the data dir in the programs dir it will automatically
 # fnd the data. There must be only two data files - RINEX NAV(valid) AND RINEX OBS FILE FOR SAME
 
-# Name of data dirs
-datsDir = os.path.abspath('../OBS-SAT/data')
+def CHECK_DATADIR( path_to_obs: str= "", path_to_nav: str="") -> None:
+    # Name of data dirs
+    datsDir = os.path.abspath('../OBS-SAT/data')
 
-# Path to my data files
-path_to_nav = ""
-path_to_obs = ""
+    # Checks if path exists or not
+    if os.path.exists(datsDir) and len(os.listdir(datsDir)) == 2:
+        for file_name in os.listdir(datsDir):
+            if 'MO' in file_name.upper() or 'GO' in file_name.upper():
+                path_to_obs = os.path.join(datsDir, file_name)
+            elif 'GN' in file_name.upper() or 'MN' in file_name.upper():
+                path_to_nav = os.path.join(datsDir, file_name)
 
-# Checks if path exists or not
-if os.path.exists(datsDir) and len(os.listdir(datsDir)) == 2:
-    for file_name in os.listdir(datsDir):
-        if 'MO' in file_name.upper() or 'GO' in file_name.upper():
-            path_to_obs = os.path.join(datsDir, file_name)
-        elif 'GN' in file_name.upper() or 'MN' in file_name.upper():
-            path_to_nav = os.path.join(datsDir, file_name)
+    else:
+        print(f"PYTHON DIDN'T FIND ANY DATA FILES IN FOLLOWING DIRECTORY-:\n"
+              f"{datsDir}\n\nMANUALLY ENTER THE PATH TO THE DATA FILES!\n")
 
-else:
-    print(f"PYTHON DIDN'T FIND ANY DATA FILES IN FOLLOWING DIRECTORY-:\n"
-          f"{datsDir}\n\nMANUALLY ENTER THE PATH TO THE DATA FILES!\n")
-
-    path_to_nav = input("ENTER ABSOLUTE PATH TO NAVIGATION RINEX FILE: ")
-    path_to_obs = input("ENTER ABSOLUTE PATH TO NAVIGATION RINEX FILE: ")
+        path_to_nav = input("ENTER ABSOLUTE PATH TO NAVIGATION RINEX FILE: ")
+        path_to_obs = input("ENTER ABSOLUTE PATH TO NAVIGATION RINEX FILE: ")
 
 
 ########################################################################################################################
@@ -147,6 +144,11 @@ else:
 # SECTION 3 : MAIN FUNCTION
 
 def main():
+    path_to_obs = ""
+    path_to_nav = ""
+
+    CHECK_DATADIR(path_to_obs, path_to_nav)
+
     # open observation and navigation files
     obs_header, obs = OPEN(path_to_obs)
     nav = OPEN(path_to_nav)

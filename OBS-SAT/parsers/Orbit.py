@@ -8,30 +8,16 @@ import math
 
 from math import *
 
-
-from parse_rinex import get_orbital_parameters
-
 from datetime import datetime, timedelta
 
 # constants required (WGS-84)
-
-
 GM = 3.986005 * 10 ** 14  # units-- m**3/s**2 :: product of gravitational constant G and the mass of the Earth M
 
 omegaE = 7.292115 * 10 ** (-5)  # units-- rad/s :: value of the Earth’s rotation rate
 
 F_relv = -4.442807633 * 10 ** (-10)
 
-
-#  Broadcast Ephemeris Type - Data from RINEX file-- As a Py-Dic
-# parsing is done by get_orbital_parameters
-
-
-#   Error Class
-class NoUTC(Exception):
-    def __init__(self):
-        super().__init__("No UTC correction data given in the RINEX file. Please try another one")
-
+#################################################################FUNCTION DEFINITION####################################
 
 # relativistic correction model refer to ICD -GPS
 def rel_corr(ecc, ek, sqrtA):
@@ -47,6 +33,15 @@ def weekanamoly(t1, t2):
         return a - 604800
     else:
         return a
+
+
+
+#############################################################CALSS DEFINITION ##########################################
+
+#   Error Class
+class NoUTC(Exception):
+    def __init__(self):
+        super().__init__("No UTC correction data given in the RINEX file. Please try another one")
 
 
 # Orbit and Satellite Position Class
@@ -143,6 +138,9 @@ class Orbit(object):
 
         tE = tE - (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, E, self.sqrtA)) + self.TGD
 
+        # Needed for observationl stuff
+        orbital_element["SV_CLOCK_ERROR"] = tE
+
         # GPST- UTC calculations
         if self.UTC_CORR:
             del_UTC = -1 * self.leap_seconds + self.A0 + self.A1 * (
@@ -163,33 +161,11 @@ class Orbit(object):
         return orbital_element
 
 
-def absorb(path: str, sat: str) -> dict:
-    data = get_orbital_parameters(path, sat)
-    return Orbit(data).getall()
 
 
 
 
 
-# Orbital Writer -- writes the orbital parameter to a text file--
-
-def write_orbit(data: dict, sat: str) -> None:
-    filename = sat + "_solution.txt"
-
-    txt = open(filename, mode='w+')
-
-    txt.write(f"Satellite name: {sat}       UTC-time: {data['UTC'].__str__()}\n")
-    for key in data.keys():
-        if key == 'UTC':
-            continue
-        if key == 'time_period':
-            txt.write(f"\n{key} = {data[key]} sec  ---> {data[key]/3600} hr\n")
-            continue
-
-
-        txt.write(f"\n{key} = {data[key]}\n")
-
-    txt.write("\n----End of Data----\n")
 
 
 
