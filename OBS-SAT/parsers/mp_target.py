@@ -1,8 +1,9 @@
-import multiprocessing
-import georinex as gr
+import multiprocessing as mp
+import time
 import xarray
 import numpy as np
 from navigation import NAVIGATION
+
 
 ############################################ THE SATELLITE CLASS #######################################################
 # Satellite class - stores sat-rcv info obtained from observation file
@@ -50,12 +51,14 @@ class Satellite(object):
             if attrs[keys] is None:
                 self.snc = False
 
+
 ############################################# FUNCTION AND DATA DEFINITION #############################################
 
 __data = ["C1C", "C2C"]
 
+
 # Function to find intersection of epoch of observation between RINEX nav and obs file
-def __INTERSECTION(obs, nav) -> np.array:
+def __INTERSECTION(obs, nav) -> tuple:
     """Output is all the sv captured and time of intersection in a tuple (sv : np.array, time: np.datetime64) """
 
     # time of capture -- all time at which satellite is captured by receiver
@@ -73,7 +76,6 @@ def __INTERSECTION(obs, nav) -> np.array:
 
     return np.intersect1d(obs.sel(time=intersection_time[0]).sv, nav.sel(time=intersection_time[0]).sv), \
            intersection_time[0]
-
 
 
 # Dual channel Detector
@@ -108,19 +110,25 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
     return filtered_list
 
 
-
-
-
-
 ############################################## MULTIPROCESSING STUFF| DO NOT TOUCH WITHOUT READING MULTIPROCESSING #####
 # MULTIPROCESSING TARGET FUNCTION
-def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset ,SV: str, time: np.datetime64, isDual: bool, queue:
-                multiprocessing.Queue, data_extract=None, ) -> None:
+
+
+
+
+def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isDual: bool, queue:
+mp.Queue, data_extract=None, ) -> None:
+    """EXTRACTS DATA FROM SATELLITE GIVEN RINEX NAV AND OBS FILE 
+        DESIGNED FOR MULTIPROCESSING!
+        
+        :argument: OBS-FILE, NAVFILE, SV_NAME, TIME_OF_OBS (EPOCH), IS_DUAL_CHANNEL
+        :return :  PUTS SATELLITE  IN MULTIPROCESSING QUEUE | SEE MULTIPROCESSING DOCS 
+        """
 
     # Read the global variable
     if data_extract is None:
         data_extract = __data
-######################################## OBSERVATION DATA EXTRACT ##############################
+    ######################################## OBSERVATION DATA EXTRACT ##############################
     # Objective: Sync the Satellite Class
     sat = Satellite(name=SV, time=time)
 
@@ -141,17 +149,17 @@ def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset ,SV: str, time: np.dat
         for attrs in __data:
             setattr(sat, attrs, sv_data[attrs].values)
 
-    queue.put(sat)
 
-####################################NAV SECTION DATA EXTRACT ################################################
+    ####################################NAV SECTION DATA EXTRACT ################################################
 
     # Extracts position and sv clock error
     # Implementer in navigation.py
-    position, dt = NAVIGATION(nav, SV , time)
+    position, dt = NAVIGATION(nav, SV, time)
 
     # Sets position and clock error to satellite class
     sat.position = position
     sat.bias = dt
+
 
     # Puts the satellite in the queue
     queue.put(sat)
@@ -160,3 +168,42 @@ def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset ,SV: str, time: np.dat
 # Fix me! Complete Multiprocess
 def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
 
+    # Checks if there is intersection between two RINEX files
+    common_sv, common_t = __INTERSECTION(obs, nav)
+
+    # Checks if the receiver is dual frequency or not
+    isDual = __DUAL_CHANNEL(obs)
+
+    # Checks if all the observed satellite have enough data to calculate their position
+    common_sv = __CHECK_NAV(nav, common_sv, common_t)
+
+    ######################Multiprocess Process Implementation###################################
+
+    # TARGET QUEUE
+    queue = mp.Queue()
+
+
+    # EMPTY PROCESS LIST
+    process = []
+
+    # EMPTY SV LIST
+    sv_list = []
+
+    # Create targe Process
+    for sat in common_sv:
+        process.append(mp.Process(target=__EXTRACT_SV, args=(obs, nav, sat, common_t, isDual,
+                                                             queue)))
+
+    # Async Process Start
+    for proc in process:
+        proc.start()
+
+    # Sync the Process
+    for proc in process:
+        proc.join()
+
+    while queue.empty() is False:
+        sv_list.append(queue.get())
+
+
+    return sv_list

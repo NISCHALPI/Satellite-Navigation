@@ -1,9 +1,7 @@
-import multiprocessing
-import xarray
 import numpy as np
 from georinex import *
 import os
-from multiprocessing import Queue, Process
+from mp_target import MULTIPROCESS
 
 
 # Objective : To read a RINEX observation file for processing
@@ -40,8 +38,6 @@ def OPEN(path: str, satID="G"):
                 print("File Exists! But cannot read")
 
             raise "Cannot load the rinex file!"
-
-
 
 
 ########################################################################################################################
@@ -93,13 +89,15 @@ def main():
     # Header data needed to postProcess RINEX file
     __header_data = ['RCV CLOCK OFFS APPL', 'APPROX POSITION XYZ', 'TIME OF FIRST OBS', ]
 
+    sat_data = MULTIPROCESS(obs, nav)
 
-
-
+    for sv in sat_data:
+        for attr in sv.__dict__:
+            print(f" {attr} = {getattr(sv, attr)}")
+        print("\n\n")
 
 
 if __name__ == '__main__':
     main()
-
 
 #############################################################END########################################################
