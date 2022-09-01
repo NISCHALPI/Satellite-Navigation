@@ -128,18 +128,18 @@ class Orbit(object):
         y = xprimek * sin(omegak) + (yprimek * cos(omegak) * cos(ik))
         z = yprimek * sin(ik)
 
-        orbital_element = {'position': [x, y, z], 'eccentricity': e, 'semimajor': A,
-                           'inclination': ik, 'acending_node': omegak, 'periapsis': self.omega, 'true_anamoly': vk,
-                           'time_period': (2*math.pi/n)}
+        orbital_element = {'position': [x, y, z]}
 
         # SV- GPST time correction
 
         b = weekanamoly(tE, self.Toc)
 
-        tE = tE - (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, E, self.sqrtA)) + self.TGD
+        dt = (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, E, self.sqrtA))
+
+        tE = tE - dt + self.TGD
 
         # Needed for observationl stuff
-        orbital_element["SV_CLOCK_ERROR"] = tE
+        orbital_element["SV_CLOCK_ERROR"] = dt
 
         # GPST- UTC calculations
         if self.UTC_CORR:
@@ -155,8 +155,7 @@ class Orbit(object):
             UTC_date = sync_date + del_UTC
 
             orbital_element['UTC'] = UTC_date
-        else:
-            raise NoUTC
+
 
         return orbital_element
 

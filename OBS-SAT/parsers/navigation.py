@@ -1,15 +1,18 @@
-import math
-import warnings
-
+from datetime import datetime
 import georinex as gr
 import numpy as np
 import xarray
-from mp_target import INTERSECTION
+from Orbit import Orbit
+from pandas import Timestamp
 
-obs = gr.rinexobs('/home/bubble/Desktop/Programs/python/OBS-SAT/data/ABPO00MDG_R_20220421000_01H_30S_MO.crx', use='G')
-nav = gr.rinexnav('/home/bubble/Desktop/Programs/python/OBS-SAT/data/ABPO00MDG_R_20220421000_01H_GN.rnx', use='G')
 
-common_sv, common_time = INTERSECTION(obs, nav)
+
+
+# DATE TIME CALCULATOR
+def to_datetime(time: np.datetime64) -> datetime:
+    """Converts np.datetime64 to datetime.datetime"""
+    return Timestamp(time).to_pydatetime()
+
 
 # fields to extract
 __fields = [
@@ -44,21 +47,8 @@ __fields = [
 ]
 
 
-def CHECK_NAV(nav_data: xarray.Dataset, sv_list: list, epoch_time: np.datetime64) -> list:
-    """Checks if the navigation file has filled parameters for the satellite"""
-    filtered_list = []
-
-    for _sv in sv_list:
-        isEmpty = np.isnan(nav.sel(sv=_sv, time=epoch_time)[__fields[6]].item(0))
-        if not isEmpty:
-            filtered_list.append(_sv)
-    if len(filtered_list) < 4:
-        raise """Less than 4 satellite observed! Undetermined Solution: At least 4 required!!!"""
-
-    return filtered_list
-
-
-def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> dict:
+################################################HELPER FUNCTION#########################################################
+def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> tuple:
     """Extracts Navigation Data
     ARGS: absolute path to rinex , Name of SV, Epoch time
     """
@@ -73,10 +63,17 @@ def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> dict:
     for attributes in __fields:
         __extract[attributes] = __SV[attributes].item(0)
 
-    print(__extract)
 
-    return __extract
+    __extract['Toc'] = ( to_datetime(epoch) - datetime(1980, 1, 6, 0, 0, 0))\
+                           .total_seconds()%604800
 
-if __name__ == '__main__':
-    common_sv = CHECK_NAV(nav, common_sv, common_time)
-    NAVIGATION(nav, common_sv[0], common_time)
+
+    __orbit = Orbit(__extract)
+
+    data = __orbit.getall()
+
+    return np.array(data['position']), data['SV_CLOCK_ERROR']
+
+
+
+#################################################END###################################################################

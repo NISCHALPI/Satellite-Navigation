@@ -1,22 +1,83 @@
+import multiprocessing
 import georinex as gr
 import xarray
-from superparser import INTERSECTION, Satellite
+import numpy as np
+from navigation import NAVIGATION
 
+############################################ THE SATELLITE CLASS #######################################################
+# Satellite class - stores sat-rcv info obtained from observation file
+class Satellite(object):
+    """A satellite class for calculations:
+    Needs following info  from Nav and Obs file to initialize:
+    1: Name
+    2: Time of Observation(epoch time) (Found in Observation RINEX file)
+    3: Position (position) : np.array
+    4: Satellite Clock Error(bias) (Found in Navigation file)
+    5: Receiver clock offset(rcoff): A bool value to see if receiver clock offset is applied
+    6: Pseudo-range (C1C) : Pseudo range for L1 frequency (C/A)
+    7: Pseudo-range (C2C) : Pseudo range for L2 frequency (C/A)
+    8: Dual-Channeled(channel) : bool to see if receiver is dual channel
+    9: Transformation (t_apply) : bool to see if coordinate transformations is applied
+    10: Check if all the data is available (sync)
 
+    Critical Method:
+    Satellite.sync(self) -> see if all the parameter are available to calculate
+    approximate position. Warning!! will pop off if something is missing!! Resync until
+    self.snc is True:
+    """
+
+    def __init__(self, name: str, time: np.datetime64, position: np.array = None,
+                 bias: float = None, rcoff: bool = None, C1C: np.float32 = None, C2C: np.float32 = None, channel:
+            bool = None, t_apply: bool = None) -> None:
+        self.snc = False
+        self.t_apply = t_apply
+        self.dual = channel
+        self.C2C = C2C
+        self.rcoff = rcoff
+        self.bias = bias
+        self.position = position
+        self.time = time
+        self.name = name
+        self.C1C = C1C
+
+    def sync(self) -> None:
+        self.snc = True
+        attrs = self.__dict__
+        attrs.pop("name")
+        attrs.pop("time")
+
+        for keys in attrs.keys():
+            if attrs[keys] is None:
+                self.snc = False
+
+############################################# FUNCTION AND DATA DEFINITION #############################################
 
 __data = ["C1C", "C2C"]
 
-obs = gr.rinexobs('/home/bubble/Desktop/Programs/python/OBS-SAT/data/ABPO00MDG_R_20220421000_01H_30S_MO.crx', use='G')
-nav = gr.rinexnav('/home/bubble/Desktop/Programs/python/OBS-SAT/data/ABPO00MDG_R_20220421000_01H_GN.rnx', use='G')
+# Function to find intersection of epoch of observation between RINEX nav and obs file
+def __INTERSECTION(obs, nav) -> np.array:
+    """Output is all the sv captured and time of intersection in a tuple (sv : np.array, time: np.datetime64) """
 
-common_sv, common_time = INTERSECTION(obs, nav)
+    # time of capture -- all time at which satellite is captured by receiver
+    __obs_time = np.array(obs.time)
 
+    # All the epoch of observation
+    __nav_time = np.array(nav.time)
 
-############################################## MULTIPROCESSING STUFF| DO NOT TOUCH WITHOUT READING MULTIPROCESSING #####
+    # Checks for intersections of Epoch time between two time
+    intersection_time = np.intersect1d(__nav_time, __obs_time)
+
+    # FINDS THE SATELLITE THAT HAVE ALL OBS AND NAV DATA NEED FOR POSITIONING
+    if np.size(intersection_time) == 0:
+        raise "No Intersection time found between Navigation or Observation file!"
+
+    return np.intersect1d(obs.sel(time=intersection_time[0]).sv, nav.sel(time=intersection_time[0]).sv), \
+           intersection_time[0]
+
 
 
 # Dual channel Detector
-def DUAL_CHANNEL(_obs: xarray.Dataset) -> bool:
+def __DUAL_CHANNEL(_obs: xarray.Dataset) -> bool:
     """
     ARGS: _obs
     RETURN: Bool : True if "C1C" and "C2C" exists | False otherwise
@@ -32,9 +93,29 @@ def DUAL_CHANNEL(_obs: xarray.Dataset) -> bool:
     return True
 
 
+# CHECKS IF DATA EXISTS IN INTERSECTION
+def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time: np.datetime64 or np.array) -> list:
+    """Checks if the navigation file has filled parameters for the satellite"""
+    filtered_list = []
 
+    for _sv in sv_list:
+        isEmpty = np.isnan(nav_data.sel(sv=_sv, time=epoch_time)["M0"].item(0))
+        if not isEmpty:
+            filtered_list.append(_sv)
+    if len(filtered_list) < 4:
+        raise """Less than 4 satellite observed! Undetermined Solution: At least 4 required!!!"""
+
+    return filtered_list
+
+
+
+
+
+
+############################################## MULTIPROCESSING STUFF| DO NOT TOUCH WITHOUT READING MULTIPROCESSING #####
 # MULTIPROCESSING TARGET FUNCTION
-def EXTRACT_SV(SV: str, time, isDual: bool, data_extract=None) -> None:
+def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset ,SV: str, time: np.datetime64, isDual: bool, queue:
+                multiprocessing.Queue, data_extract=None, ) -> None:
 
     # Read the global variable
     if data_extract is None:
@@ -53,23 +134,29 @@ def EXTRACT_SV(SV: str, time, isDual: bool, data_extract=None) -> None:
     if not isDual:
         """If not dual channel, set C1C only"""
         setattr(sat, data_extract[0], sv_data[data_extract[0]].values)
-        setattr(sat, "channel", False)
+        setattr(sat, "dual", False)
+        delattr(sat, "C2C")
     else:
         "Otherwise set C1C and C2C"
         for attrs in __data:
             setattr(sat, attrs, sv_data[attrs].values)
 
+    queue.put(sat)
+
 ####################################NAV SECTION DATA EXTRACT ################################################
 
+    # Extracts position and sv clock error
+    # Implementer in navigation.py
+    position, dt = NAVIGATION(nav, SV , time)
+
+    # Sets position and clock error to satellite class
+    sat.position = position
+    sat.bias = dt
+
+    # Puts the satellite in the queue
+    queue.put(sat)
 
 
-    for attrs in sat.__dict__:
-        print(f"{attrs} -> {getattr(sat , attrs)}")
+# Fix me! Complete Multiprocess
+def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
 
-
-
-
-
-if __name__ == '__main__':
-    dual = DUAL_CHANNEL(obs)
-    EXTRACT_SV(common_sv[0], common_time, dual)
