@@ -4,6 +4,13 @@ import os
 from mp_target import MULTIPROCESS
 
 
+
+#Constants
+
+speed_of_light = 299792458    # IN M/SEC
+
+
+
 # Objective : To read a RINEX observation file for processing
 
 
@@ -74,7 +81,7 @@ def CHECK_DATADIR() -> tuple:
 
 # SECTION 3 : MAIN FUNCTION
 
-def main():
+def main() -> list:
     # Extracts data from User
     path_to_obs, path_to_nav = CHECK_DATADIR()
 
@@ -89,12 +96,34 @@ def main():
     # Header data needed to postProcess RINEX file
     __header_data = ['RCV CLOCK OFFS APPL', 'APPROX POSITION XYZ', 'TIME OF FIRST OBS', ]
 
+    # The multiprocess call to extract the data from files -> out : list<Satellite, Satellite , ......>
     sat_data = MULTIPROCESS(obs, nav)
+
+    # Checks if receiver clock offset is applied or not
+    try:
+        offset = obs_header[__header_data[0]]
+        if offset == 1:
+            for sv in sat_data:
+                sv.rcoff = True
+        else:
+            for sv in sat_data:
+                sv.rcoff = False
+    except:
+        for sv in sat_data:
+            sv.rcoff = False
+
+
+    # Let there be transformation !
+
 
     for sv in sat_data:
         for attr in sv.__dict__:
             print(f" {attr} = {getattr(sv, attr)}")
         print("\n\n")
+
+    print(obs_header.keys())
+
+    return sat_data
 
 
 if __name__ == '__main__':

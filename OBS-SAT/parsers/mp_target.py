@@ -114,8 +114,6 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
 # MULTIPROCESSING TARGET FUNCTION
 
 
-
-
 def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isDual: bool, queue:
 mp.Queue, data_extract=None, ) -> None:
     """EXTRACTS DATA FROM SATELLITE GIVEN RINEX NAV AND OBS FILE 
@@ -132,8 +130,6 @@ mp.Queue, data_extract=None, ) -> None:
     # Objective: Sync the Satellite Class
     sat = Satellite(name=SV, time=time)
 
-    # Get the specific sv data
-    sv_data = obs.sel(sv=SV, time=time)
 
     # No Earth rotation transformation applied yet
     sat.t_apply = False
@@ -141,14 +137,13 @@ mp.Queue, data_extract=None, ) -> None:
     # Dual channel data Extract and Setting
     if not isDual:
         """If not dual channel, set C1C only"""
-        setattr(sat, data_extract[0], sv_data[data_extract[0]].values)
+        setattr(sat, data_extract[0], obs[data_extract[0]].values)
         setattr(sat, "dual", False)
         delattr(sat, "C2C")
     else:
         "Otherwise set C1C and C2C"
         for attrs in __data:
-            setattr(sat, attrs, sv_data[attrs].values)
-
+            setattr(sat, attrs, obs[attrs].values)
 
     ####################################NAV SECTION DATA EXTRACT ################################################
 
@@ -160,14 +155,12 @@ mp.Queue, data_extract=None, ) -> None:
     sat.position = position
     sat.bias = dt
 
-
     # Puts the satellite in the queue
     queue.put(sat)
 
 
 # Fix me! Complete Multiprocess
 def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
-
     # Checks if there is intersection between two RINEX files
     common_sv, common_t = __INTERSECTION(obs, nav)
 
@@ -182,7 +175,6 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     # TARGET QUEUE
     queue = mp.Queue()
 
-
     # EMPTY PROCESS LIST
     process = []
 
@@ -191,8 +183,9 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
 
     # Create targe Process
     for sat in common_sv:
-        process.append(mp.Process(target=__EXTRACT_SV, args=(obs, nav, sat, common_t, isDual,
-                                                             queue)))
+        process.append(
+            mp.Process(target=__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
+                                                  sat, common_t, isDual, queue)))
 
     # Async Process Start
     for proc in process:
@@ -202,8 +195,8 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for proc in process:
         proc.join()
 
+    # Extracts the queue
     while queue.empty() is False:
         sv_list.append(queue.get())
-
 
     return sv_list

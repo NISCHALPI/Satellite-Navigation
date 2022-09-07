@@ -53,15 +53,11 @@ def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> tuple:
     ARGS: absolute path to rinex , Name of SV, Epoch time
     """
 
-    try:
-        __SV = nav.sel(sv=sv, time=epoch)
-    except:
-        raise f"Couldn't find the {sv} at that epoch! Please Recheck!"
 
     __extract = {}
 
     for attributes in __fields:
-        __extract[attributes] = __SV[attributes].item(0)
+        __extract[attributes] = nav[attributes].item(0)
 
 
     __extract['Toc'] = ( to_datetime(epoch) - datetime(1980, 1, 6, 0, 0, 0))\
