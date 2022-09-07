@@ -5,9 +5,10 @@ from mp_target import MULTIPROCESS
 
 
 
-#Constants
+# MAIN FUNCTION IS MAIN
 
-speed_of_light = 299792458    # IN M/SEC
+# import main which will automatically read the files from /data/ directory
+
 
 
 
@@ -82,6 +83,8 @@ def CHECK_DATADIR() -> tuple:
 # SECTION 3 : MAIN FUNCTION
 
 def main() -> list:
+
+
     # Extracts data from User
     path_to_obs, path_to_nav = CHECK_DATADIR()
 
@@ -113,16 +116,7 @@ def main() -> list:
             sv.rcoff = False
 
 
-    # Let there be transformation !
-
-
-    for sv in sat_data:
-        for attr in sv.__dict__:
-            print(f" {attr} = {getattr(sv, attr)}")
-        print("\n\n")
-
-    print(obs_header.keys())
-
+    # returns without transformations
     return sat_data
 
 

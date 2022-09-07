@@ -3,14 +3,20 @@
   <component name="ChangeListManager">
     <list default="true" id="f337d5cb-9635-4279-8756-8b7ba8a2c533" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/navigation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/assembly.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -19,6 +25,9 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2E9k37SCb3ny8tLw7IqcMKJkdgY" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
