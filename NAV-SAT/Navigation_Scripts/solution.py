@@ -10,11 +10,16 @@ def ask_path() -> str:
     while True:
         try:
             path_to_rinex = input("Enter the absolute path to RINEX file: ")
+            
+            if path_to_rinex.lower() == "quit":
+            	break
+            	
             temp = open(path_to_rinex, 'r')
             temp.close()
             break
         except:
-            print('Invalid Path! Please try again')
+            print('\nInvalid Path! Please try again!')
+            
             continue
 
     return path_to_rinex
