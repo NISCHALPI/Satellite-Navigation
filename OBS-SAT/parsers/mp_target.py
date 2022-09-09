@@ -51,6 +51,13 @@ class Satellite(object):
             if attrs[keys] is None:
                 self.snc = False
 
+    def transformation(self, transform: callable):
+
+        try:
+            self.position = transform(self.position, self.C1C)
+            self.t_apply = True
+        except:
+            raise "Couldn't apply the earth rotation transformation!"
 
 ############################################# FUNCTION AND DATA DEFINITION #############################################
 
@@ -129,7 +136,6 @@ mp.Queue, data_extract=None, ) -> None:
     ######################################## OBSERVATION DATA EXTRACT ##############################
     # Objective: Sync the Satellite Class
     sat = Satellite(name=SV, time=time)
-
 
     # No Earth rotation transformation applied yet
     sat.t_apply = False

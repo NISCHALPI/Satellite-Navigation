@@ -4,12 +4,9 @@ import os
 from mp_target import MULTIPROCESS
 
 
-
 # MAIN FUNCTION IS MAIN
 
 # import main which will automatically read the files from /data/ directory
-
-
 
 
 # Objective : To read a RINEX observation file for processing
@@ -57,7 +54,7 @@ def OPEN(path: str, satID="G"):
 
 def CHECK_DATADIR() -> tuple:
     # Name of data dirs
-    datsDir = os.path.abspath('../data')
+    datsDir = os.path.abspath('./data')
 
     # Checks if path exists or not
     if os.path.exists(datsDir) and len(os.listdir(datsDir)) == 2:
@@ -82,9 +79,7 @@ def CHECK_DATADIR() -> tuple:
 
 # SECTION 3 : MAIN FUNCTION
 
-def main() -> list:
-
-
+def parse() -> list:
     # Extracts data from User
     path_to_obs, path_to_nav = CHECK_DATADIR()
 
@@ -115,12 +110,17 @@ def main() -> list:
         for sv in sat_data:
             sv.rcoff = False
 
-
     # returns without transformations
     return sat_data
 
 
 if __name__ == '__main__':
-    main()
+
+    sat_data_test = parse()
+
+    for __sv in  sat_data_test:
+        for attr in __sv.__dict__:
+            print(f"{attr} -> {getattr(__sv, attr)}")
+        print("\n")
 
 #############################################################END########################################################
