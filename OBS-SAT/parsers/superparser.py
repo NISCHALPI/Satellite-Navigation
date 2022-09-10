@@ -1,7 +1,7 @@
 import numpy as np
 from georinex import *
 import os
-from mp_target import MULTIPROCESS
+from mp_target import MULTIPROCESS, MULTITHREAD
 
 
 # MAIN FUNCTION IS MAIN
@@ -79,7 +79,11 @@ def CHECK_DATADIR() -> tuple:
 
 # SECTION 3 : MAIN FUNCTION
 
-def parse() -> list:
+def parse(signal: bool = False) -> list:
+    """SIGNAL: True <multithread> | False <multiprocess> : default: MULTITHREAD"""
+    """ARGS = signal <int>
+       RES = list <Satellite>"""
+
     # Extracts data from User
     path_to_obs, path_to_nav = CHECK_DATADIR()
 
@@ -94,8 +98,14 @@ def parse() -> list:
     # Header data needed to postProcess RINEX file
     __header_data = ['RCV CLOCK OFFS APPL', 'APPROX POSITION XYZ', 'TIME OF FIRST OBS', ]
 
-    # The multiprocess call to extract the data from files -> out : list<Satellite, Satellite , ......>
-    sat_data = MULTIPROCESS(obs, nav)
+
+
+    # The multiprocess or multithread call to extract the data from files -> out : list<Satellite, Satellite , ......>
+    if signal:
+        sat_data = MULTITHREAD(obs, nav)
+    else:
+        sat_data = MULTIPROCESS(obs, nav)
+
 
     # Checks if receiver clock offset is applied or not
     try:
@@ -118,7 +128,7 @@ if __name__ == '__main__':
 
     sat_data_test = parse()
 
-    for __sv in  sat_data_test:
+    for __sv in sat_data_test:
         for attr in __sv.__dict__:
             print(f"{attr} -> {getattr(__sv, attr)}")
         print("\n")

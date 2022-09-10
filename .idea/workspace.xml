@@ -2,9 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f337d5cb-9635-4279-8756-8b7ba8a2c533" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/OBS-SAT/parsers/threads/Fthread.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/OBS-SAT/parsers/threads/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/assembly.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/assembly.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/corrections/pseudorange_filtration_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/corrections/pseudorange_filtration_code.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,12 +34,18 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "/home/hades/Desktop/Codes/python/Satellite-Navigation/OBS-SAT/parsers"
   }
-}</component>
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/OBS-SAT/parsers" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python.assembly">
     <configuration name="assembly" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="python" />

@@ -3,6 +3,7 @@ import time
 import xarray
 import numpy as np
 from navigation import NAVIGATION
+from threads.Fthread import Fthread
 
 
 ############################################ THE SATELLITE CLASS #######################################################
@@ -58,6 +59,7 @@ class Satellite(object):
             self.t_apply = True
         except:
             raise "Couldn't apply the earth rotation transformation!"
+
 
 ############################################# FUNCTION AND DATA DEFINITION #############################################
 
@@ -121,8 +123,8 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
 # MULTIPROCESSING TARGET FUNCTION
 
 
-def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isDual: bool, queue:
-mp.Queue, data_extract=None, ) -> None:
+def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isDual: bool, isThread: bool =
+                    False, queue: mp.Queue = None, data_extract=None) -> None or Satellite:
     """EXTRACTS DATA FROM SATELLITE GIVEN RINEX NAV AND OBS FILE 
         DESIGNED FOR MULTIPROCESSING!
         
@@ -162,7 +164,10 @@ mp.Queue, data_extract=None, ) -> None:
     sat.bias = dt
 
     # Puts the satellite in the queue
-    queue.put(sat)
+    if isThread:
+        return sat
+    else:
+        queue.put(sat)
 
 
 # Fix me! Complete Multiprocess
@@ -191,7 +196,7 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for sat in common_sv:
         process.append(
             mp.Process(target=__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
-                                                  sat, common_t, isDual, queue)))
+                                                  sat, common_t, isDual, False, queue)))
 
     # Async Process Start
     for proc in process:
@@ -206,3 +211,36 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
         sv_list.append(queue.get())
 
     return sv_list
+
+
+def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
+    # Checks if there is intersection between two RINEX files
+    common_sv, common_t = __INTERSECTION(obs, nav)
+
+    # Checks if the receiver is dual frequency or not
+    isDual = __DUAL_CHANNEL(obs)
+
+    # Checks if all the observed satellite have enough data to calculate their position
+    common_sv = __CHECK_NAV(nav, common_sv, common_t)
+
+    ######################Multithreads Implementation###################################
+
+    # EMPTY PROCESS LIST
+    threads = []
+
+    # Create target threads
+    for sat in common_sv:
+        threads.append(
+            Fthread(__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
+                                        sat, common_t, isDual, True)))
+
+    # Async thread Start
+    for trd in threads:
+        trd.start()
+
+    # Sync the threads
+    for trd in threads:
+        trd.join()
+
+    # Returns the threads
+    return [thread.get for thread in threads]
