@@ -2,19 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f337d5cb-9635-4279-8756-8b7ba8a2c533" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/OBS-SAT/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/python.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OBS-SAT/assembly.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/assembly.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/calculations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/calculations/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/corrections/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/corrections/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/navigation.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/navigation.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/transformation/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/transformation/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/transformation/transformations.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/transformation/transformations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/corrections/pseudorange_filtration_code.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/corrections/pseudorange_filtration_code.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
