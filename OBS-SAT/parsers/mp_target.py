@@ -76,6 +76,8 @@ __data2 = ["C1L", "C2L"]
 def __INTERSECTION(obs, nav) -> tuple:
     """Output is all the sv captured and time of intersection in a tuple (sv : np.array, time: np.datetime64) """
 
+    print("\nChecking for common epoch in Observation and Navigation file!")
+    print("------------------------------------")
     # time of capture -- all time at which satellite is captured by receiver
     __obs_time = np.array(obs.time)
 
@@ -88,6 +90,11 @@ def __INTERSECTION(obs, nav) -> tuple:
     # FINDS THE SATELLITE THAT HAVE ALL OBS AND NAV DATA NEED FOR POSITIONING
     if np.size(intersection_time) == 0:
         raise "No Intersection time found between Navigation or Observation file!"
+    else:
+        print("Intersection Found!")
+        for time in intersection_time:
+            print(time)
+            print("\n")
 
     return np.intersect1d(obs.sel(time=intersection_time[0]).sv, nav.sel(time=intersection_time[0]).sv), \
            intersection_time[0]
@@ -98,7 +105,11 @@ def __INTERSECTION(obs, nav) -> tuple:
 # CHECKS IF DATA EXISTS IN INTERSECTION
 def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time: np.datetime64 or np.array) -> list:
     """Checks if the navigation file has filled parameters for the satellite"""
+
+    print("Checking data integrity in Navigation File for intersecting epoch!")
+    print("------------------------------------")
     filtered_list = []
+
 
     for _sv in sv_list:
         isEmpty = np.isnan(nav_data.sel(sv=_sv, time=epoch_time)["M0"].item(0))
@@ -106,6 +117,12 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
             filtered_list.append(_sv)
     if len(filtered_list) < 4:
         raise """Less than 4 satellite observed! Undetermined Solution: At least 4 required!!!"""
+
+    for _ in filtered_list:
+        print(f"Found complete data for SV = {_}")
+
+    print("------------------------------------")
+    print(f"Total SV available: {len(filtered_list)}\n")
 
     return filtered_list
 
@@ -125,6 +142,7 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
     global  __data2, __data
     ######################################## OBSERVATION DATA EXTRACT ##############################
+
     # Objective: Sync the Satellite Class
     sat = Satellite(name=SV, time=time)
 
@@ -159,8 +177,9 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
 
     ####################################NAV SECTION DATA EXTRACT ################################################
-
+    print(f"Extracting and Processing Navigation Data for {sat.name}")
     # Extracts position and sv clock error
+
     # Implementer in navigation.py
     position, dt = NAVIGATION(nav, SV, time)
 
@@ -184,6 +203,7 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
 # Fix me! Complete Multiprocess
 def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
+
     # Checks if there is intersection between two RINEX files
     common_sv, common_t = __INTERSECTION(obs, nav)
 
@@ -192,6 +212,10 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     common_sv = __CHECK_NAV(nav, common_sv, common_t)
 
     ######################Multiprocess Process Implementation###################################
+    print("------------------------------------PARSING STARTING------------------------------------------")
+    print(f"Spawning {len(common_sv)} process for parsing!")
+    print("OUTPUT MAY BE OUT OF SYNC")
+    print("------------------------------------")
 
     # TARGET QUEUE
     queue = mp.Queue()
@@ -220,6 +244,9 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     while queue.empty() is False:
         sv_list.append(queue.get())
 
+    print("------------------------------------")
+    print("All process completed!\n")
+
     return sv_list
 
 
@@ -236,6 +263,12 @@ def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     # EMPTY PROCESS LIST
     threads = []
 
+    print("------------------------------------PARSING STARTING------------------------------------------\n")
+
+    print(f"Spawning {len(common_sv)} async thread for parsing!")
+    print("OUTPUT MAY BE OUT OF SYNC")
+    print("------------------------------------")
+
     # Create target threads
     for sat in common_sv:
         threads.append(
@@ -250,5 +283,7 @@ def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for trd in threads:
         trd.join()
 
+    print("------------------------------------")
+    print("All threads completed!\n")
     # Returns the threads
     return [thread.get for thread in threads]

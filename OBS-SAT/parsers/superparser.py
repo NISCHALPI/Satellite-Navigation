@@ -20,8 +20,10 @@ def OPEN(path: str, satID="G"):
     """Opens RINEX file automatically.
        Extracts only GPS satellite"""
 
+
     if "MO" in path.upper() or "GO" in path.upper():
         try:
+            print("Reading Observational File!")
             return rinexheader(path), rinexobs(path, use=satID)
 
         except:
@@ -32,8 +34,11 @@ def OPEN(path: str, satID="G"):
                 print("File Exists! But cannot read")
 
             raise "Cannot load the rinex file!"
+
+
     elif "GN" in path.upper() or "MN" in path.upper():
         try:
+            print("Reading Navigation File!")
             return rinexnav(path, use=satID)
         except:
             print("Cannot open the RINEX file! Check if you have permission to read the file")
@@ -56,14 +61,20 @@ def CHECK_DATADIR() -> tuple:
     # Name of data dirs
     datsDir = os.path.abspath('./data')
 
+    print("Searching for RINEX file in OBS-SAT/data directory:")
+    print("------------------------------------")
+
     # Checks if path exists or not
     if os.path.exists(datsDir) and len(os.listdir(datsDir)) == 2:
         for file_name in os.listdir(datsDir):
             if 'MO' in file_name.upper() or 'GO' in file_name.upper():
+                print("Found Observational File!")
                 path_to_obs = os.path.join(datsDir, file_name)
             elif 'GN' in file_name.upper() or 'MN' in file_name.upper():
+                print("Found Navigation File!")
                 path_to_nav = os.path.join(datsDir, file_name)
-
+            else:
+                print("RINEX file found!")
 
     else:
         print(f"PYTHON DIDN'T FIND ANY DATA FILES IN FOLLOWING DIRECTORY-:\n"
@@ -87,6 +98,8 @@ def parse(signal: bool = True) -> list:
     # Extracts data from User
     path_to_obs, path_to_nav = CHECK_DATADIR()
 
+    print("\nReading Files:")
+    print("------------------------------------")
     # open observation and navigation files
     obs_header, obs = OPEN(path_to_obs)
 
@@ -101,9 +114,16 @@ def parse(signal: bool = True) -> list:
 
 
     # The multiprocess or multithread call to extract the data from files -> out : list<Satellite, Satellite , ......>
+
+    print("\nCompute Capability:")
+    print("------------------------------------")
+    print(f"{os.cpu_count()} available CPU-cores")
+
     if signal:
+        print("Compute-Mode: Multithreading")
         sat_data = MULTITHREAD(obs, nav)
     else:
+        print("Compute-Mode: Multiprocessing")
         sat_data = MULTIPROCESS(obs, nav)
 
 
