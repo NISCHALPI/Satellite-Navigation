@@ -79,7 +79,7 @@ def CHECK_DATADIR() -> tuple:
 
 # SECTION 3 : MAIN FUNCTION
 
-def parse(signal: bool = False) -> list:
+def parse(signal: bool = True) -> list:
     """SIGNAL: True <multithread> | False <multiprocess> : default: MULTITHREAD"""
     """ARGS = signal <int>
        RES = list <Satellite>"""

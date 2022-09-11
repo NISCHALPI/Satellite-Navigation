@@ -1,9 +1,15 @@
 import multiprocessing as mp
-import time
 import xarray
 import numpy as np
 from navigation import NAVIGATION
-from threads.Fthread import Fthread
+
+import sys
+
+sys.path.append('../')
+
+# IGNORE THE ERROR | SYS PYTHON_PATH EXPORTED
+from threaded.threads.Fthread import Fthread
+from threaded.preprocessing import preprocessing
 
 
 ############################################ THE SATELLITE CLASS #######################################################
@@ -64,7 +70,7 @@ class Satellite(object):
 ############################################# FUNCTION AND DATA DEFINITION #############################################
 
 __data = ["C1C", "C2C"]
-
+__data2 = ["C1L", "C2L"]
 
 # Function to find intersection of epoch of observation between RINEX nav and obs file
 def __INTERSECTION(obs, nav) -> tuple:
@@ -87,21 +93,6 @@ def __INTERSECTION(obs, nav) -> tuple:
            intersection_time[0]
 
 
-# Dual channel Detector
-def __DUAL_CHANNEL(_obs: xarray.Dataset) -> bool:
-    """
-    ARGS: _obs
-    RETURN: Bool : True if "C1C" and "C2C" exists | False otherwise
-
-    """
-
-    # ALL THE OBSERVATION DATA
-    keys = list(_obs.data_vars.keys())
-
-    for attrs in __data:
-        if attrs not in keys:
-            return False
-    return True
 
 
 # CHECKS IF DATA EXISTS IN INTERSECTION
@@ -123,8 +114,8 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
 # MULTIPROCESSING TARGET FUNCTION
 
 
-def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isDual: bool, isThread: bool =
-                    False, queue: mp.Queue = None, data_extract=None) -> None or Satellite:
+def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isThread: bool =
+False, queue: mp.Queue = None, ) -> None or Satellite:
     """EXTRACTS DATA FROM SATELLITE GIVEN RINEX NAV AND OBS FILE 
         DESIGNED FOR MULTIPROCESSING!
         
@@ -132,9 +123,7 @@ def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.dat
         :return :  PUTS SATELLITE  IN MULTIPROCESSING QUEUE | SEE MULTIPROCESSING DOCS 
         """
 
-    # Read the global variable
-    if data_extract is None:
-        data_extract = __data
+    global  __data2, __data
     ######################################## OBSERVATION DATA EXTRACT ##############################
     # Objective: Sync the Satellite Class
     sat = Satellite(name=SV, time=time)
@@ -142,16 +131,32 @@ def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.dat
     # No Earth rotation transformation applied yet
     sat.t_apply = False
 
-    # Dual channel data Extract and Setting
-    if not isDual:
-        """If not dual channel, set C1C only"""
-        setattr(sat, data_extract[0], obs[data_extract[0]].values)
-        setattr(sat, "dual", False)
-        delattr(sat, "C2C")
-    else:
-        "Otherwise set C1C and C2C"
-        for attrs in __data:
-            setattr(sat, attrs, obs[attrs].values)
+    sat.dual = True
+
+
+    # Checks for dual channel with respect to __data2 = ["C1C" , "C2C"]
+    try:
+        for index, attr in enumerate(__data2):
+            if not np.isnan(obs[attr].item(0)):
+                setattr(sat, __data[index] , obs[attr].item(0))
+            else:
+                raise "Error! Not a Num"
+    except:
+        sat.dual = False
+
+
+    # If not dual with respect to __data2, check  dual with respect to __data1 ["C1C", "C2C"]
+    if not sat.dual:
+        try:
+            for attr in __data:
+                if not np.isnan(obs[attr].item(0)):
+                    setattr(sat, attr, obs[attr].item(0))
+                else:
+                    raise "Error! Not a Num"
+        except:
+            sat.dual = False
+
+
 
     ####################################NAV SECTION DATA EXTRACT ################################################
 
@@ -162,6 +167,13 @@ def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.dat
     # Sets position and clock error to satellite class
     sat.position = position
     sat.bias = dt
+
+
+    ###################################### APPLY PRE-PREOCESSING HERE ##############
+    preprocessing(sat)
+
+
+
 
     # Puts the satellite in the queue
     if isThread:
@@ -175,8 +187,6 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     # Checks if there is intersection between two RINEX files
     common_sv, common_t = __INTERSECTION(obs, nav)
 
-    # Checks if the receiver is dual frequency or not
-    isDual = __DUAL_CHANNEL(obs)
 
     # Checks if all the observed satellite have enough data to calculate their position
     common_sv = __CHECK_NAV(nav, common_sv, common_t)
@@ -196,7 +206,7 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for sat in common_sv:
         process.append(
             mp.Process(target=__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
-                                                  sat, common_t, isDual, False, queue)))
+                                                  sat, common_t, False, queue)))
 
     # Async Process Start
     for proc in process:
@@ -217,8 +227,6 @@ def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     # Checks if there is intersection between two RINEX files
     common_sv, common_t = __INTERSECTION(obs, nav)
 
-    # Checks if the receiver is dual frequency or not
-    isDual = __DUAL_CHANNEL(obs)
 
     # Checks if all the observed satellite have enough data to calculate their position
     common_sv = __CHECK_NAV(nav, common_sv, common_t)
@@ -232,7 +240,7 @@ def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for sat in common_sv:
         threads.append(
             Fthread(__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
-                                        sat, common_t, isDual, True)))
+                                        sat, common_t, True)))
 
     # Async thread Start
     for trd in threads:
