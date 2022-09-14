@@ -3,7 +3,6 @@
 
 # IMPORTS
 from parsers.superparser import parse
-from threaded.threads.Fthread import Fthread
 from calculations.linear_model_calculation import linear_model
 
 
@@ -46,7 +45,7 @@ def DISPLAY(sv_list: list, name: str = None) -> None:
 def main() -> None:
     # Automatically extract data
     # Note: RINEX FILES SHOULD BE IN <data> directory to process
-    sat_data = parse(False)
+    sat_data = parse()
     print("------------------------------------PARSING COMPLETE------------------------------------------\n")
 
     print("-------------------------------------------SV-DATA-VIEW------------------------------------------\n")
@@ -66,3 +65,5 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+    
+    
