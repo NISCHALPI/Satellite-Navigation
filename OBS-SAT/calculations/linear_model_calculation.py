@@ -11,13 +11,16 @@
 import numpy as np
 import sys
 sys.path.append('../')
+sys.path.append('../parsers')
 from threaded.threads.Fthread import Fthread
+from parsers.mp_target import Satellite
 
 # Constants
 c = 299792458
 
 def calculate_pseudorange(position: np.array, parameter: np.array) -> np.float32:
     """Returns computed pseudorange given provisional parameters"""
+
     return np.linalg.norm(position - parameter[0:-1]) + c * parameter[-1]
 
 
@@ -27,8 +30,9 @@ def calculate_design(position: np.array, parameter: np.array, pseudorange):
     # Set dt = 0 since it doesn't affect design matrix
     parameter[-1] = 0
 
+
     # calculate first three element of the row
-    first_three =  (parameter[0:-1] - position ) / calculate_pseudorange(position , parameter)
+    first_three =  (parameter[0:-1] - position) / calculate_pseudorange(position , parameter)
 
     # return whole row for a given satellite and provisional parameter
     return np.append(first_three , c)
@@ -36,7 +40,11 @@ def calculate_design(position: np.array, parameter: np.array, pseudorange):
 
 
 def getParameters(__GPS_VISIBLE: list, provisional_parameter: np.array) -> tuple:
+    """
+    ARGS: __GPS_SATELLITE class list
+    provisional_parameters: provisional parameter
 
+    """
     threads_for_p = []
 
     threads_for_design = []
@@ -60,7 +68,7 @@ def getParameters(__GPS_VISIBLE: list, provisional_parameter: np.array) -> tuple
         thread.join()
 
     return np.array(list(map(lambda obj: obj.get, threads_for_p))).reshape(-1,1) \
-        ,np.array(list(map(lambda obj: obj.get, threads_for_design)))
+        ,np.array(list(map(lambda obj: obj.get, threads_for_design))).reshape(-1,4)
 
 
 
@@ -70,6 +78,7 @@ def linear_model(__GPS_VISIBLE: list) -> tuple:
        Output: Reciver Clock Bias and Position of Observer (ECFC Coordinats)"""
 
     # Accuracy of linear model
+    epsilon = 0.001
 
     # INITIAL CLOCK BIAS
     dtau = 0
@@ -77,27 +86,57 @@ def linear_model(__GPS_VISIBLE: list) -> tuple:
 
     # INITIAL ASSUMED STATE VECTOR
     # Provisional State Vector : shape -> 1 * 4
-    initial_points = np.array([0,0,0,dtau])
+    initial_points = np.array([0,0,0,dtau], dtype=np.float64)
 
 
 
     # initial pseudorange matrix : dims = m(no of sv) * 1
     # Not yet adjusted with provisional parameters
     # -1 is an infering for no of rows based on size since I know what colum should be (only 1)
-    delP, designMatrix = getParameters(__GPS_VISIBLE, initial_points)
 
 
-    designTranspose = designMatrix.transpose()
+    count = 0
+
+    while True:
+
+        delP, designMatrix = getParameters(__GPS_VISIBLE, initial_points)
+
+        # Transpose of design matrix
+        designTranspose = designMatrix.transpose()
+
+
+        # Least square solutions
+        sol = np.dot(np.dot(np.linalg.inv(np.dot(designTranspose , designMatrix)) , designTranspose) , delP)
 
 
 
-    sol = np.matmul(np.linalg.inv(np.matmul(designTranspose, designMatrix)), np.matmul(designTranspose , delP))
-
-    print(sol)
+        sol = sol.flatten()
 
 
 
+        print(sol)
+        initial_points += sol
 
+        if np.linalg.norm(sol) < epsilon:
+            break
+
+
+
+
+
+
+    return initial_points[-1], initial_points[0:-1]
+
+
+
+
+if __name__ == "__main__":
+        list1 = [[17721011.353369, 8651393.403376 , 18066668.984492]]
+        list1.append([-7764276.013113 , 24815558.193781, 3355306.117463])
+        list1.append([7801883.623771, 19574982.369322, 16200329.385216])
+        list1.append([17252169.032178, 19650114.003115, -4997938.841081])
+        list1.append([-8926199.493994,11886677.791223, 21992642.490734])
+        list1.append([-20869939.195044, 12986675.436728 , 10317360.241586])
 
 
 

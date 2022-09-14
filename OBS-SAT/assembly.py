@@ -4,6 +4,7 @@
 # IMPORTS
 from parsers.superparser import parse
 from calculations.linear_model_calculation import linear_model
+from transformation.lat_log import Earth
 
 
 # Print SV function
@@ -46,6 +47,7 @@ def main() -> None:
     # Automatically extract data
     # Note: RINEX FILES SHOULD BE IN <data> directory to process
     sat_data = parse()
+
     print("------------------------------------PARSING COMPLETE------------------------------------------\n")
 
     print("-------------------------------------------SV-DATA-VIEW------------------------------------------\n")
@@ -54,16 +56,22 @@ def main() -> None:
 
     print("-------------------------------------------END-OF-SV-DATA------------------------------------------\n")
 
-
     # work on linear model
     print("\n-------------------------------------------STARTING-THREADED-LINEAR "
           "MODEL------------------------------------------\n")
-    linear_model(sat_data)
 
-    pass
+
+
+
+    dt, position = linear_model(sat_data[0:4])
+
+
+
+
+    earth = Earth(rads=False)
+
+    print(earth.CTE(*position))
 
 
 if __name__ == "__main__":
     main()
-    
-    

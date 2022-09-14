@@ -116,6 +116,9 @@ class Earth(Planet):
 x = Earth(rads=False)
 
 
-coords = np.array([10, 10, 10], dtype=np.float32)*1000
+# Test vector: https://www.oc.nps.edu/oc2902w/coord/llhxyz.htm
+if __name__ == "__main__":
 
-print(x.CTE(*coords))
+    coords = np.array([12, 11, 229584], dtype=np.float32)
+
+    print(x.CTE(*coords))

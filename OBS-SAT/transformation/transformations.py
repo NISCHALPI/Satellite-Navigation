@@ -1,5 +1,4 @@
 import numpy as np
-from time import time
 
 
 # This script contains all the transformations required to process the RINEX nav and obs file
@@ -23,4 +22,4 @@ def transformation_earth_rotation(initial_coordinates: np.array, pseudo_range: n
                                       [-np.sin(avg_angular_motion), np.cos(avg_angular_motion), 0],
                                       [0, 0, 1]]).astype(np.float32)
 
-    return np.dot(transformation_matrix, initial_coordinates).reshape((1,3))
+    return np.matmul(transformation_matrix, initial_coordinates).reshape((1, 3))
