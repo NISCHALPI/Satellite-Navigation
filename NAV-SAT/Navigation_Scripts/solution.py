@@ -1,5 +1,5 @@
 from Orbit import absorb, write_orbit
-from parse_rinex import NoSatelllite, get_orbital_parameters
+from parse_rinex import NoSatelllite, get_orbital_parameters, listGPS
 import os
 
 
@@ -10,30 +10,39 @@ def ask_path() -> str:
     while True:
         try:
             path_to_rinex = input("Enter the absolute path to RINEX file: ")
-            
+
             if path_to_rinex.lower() == "quit":
-            	break
-            	
+                print(f"User Termination! Returned with exit code -1\n")
+                exit(-1)
+                break
+
             temp = open(path_to_rinex, 'r')
             temp.close()
             break
         except:
             print('\nInvalid Path! Please try again!')
-            
+
             continue
 
     return path_to_rinex
 
 
-
-
-
 # checks valid sat
 def ask_satellite(path_to_rinex: str) -> str:
+
     global satellite_number
+
+    GPS = listGPS(path_to_rinex)
+    print("\nVISIBLE SATELLITE")
+
+    print("----------------------------------------------")
+    for gps in GPS:
+        print(f"{gps} is available for tracking")
+
     while True:
         try:
-            satellite_number = input("Enter the satellite number to track: ")
+
+            satellite_number = input("\nEnter the satellite number to track: ")
             data = get_orbital_parameters(path_to_rinex, satellite_number)
             break
         except NoSatelllite:
@@ -44,19 +53,16 @@ def ask_satellite(path_to_rinex: str) -> str:
 
 
 if __name__ == '__main__':
-
     path_to_rinex = ask_path()
 
     satellite_number = ask_satellite(path_to_rinex)
 
-
     # gets ephemeris data
     true_data = absorb(path_to_rinex, satellite_number)
-
 
     # writes the data to a file
     write_orbit(true_data, satellite_number)
 
     cwd = os.getcwd()
 
-    print(f'\nSolution is written to a {satellite_number+"_solution.txt"} in {cwd}')
+    print(f'\nSolution is written to a {satellite_number + "_solution.txt"} in {cwd}')

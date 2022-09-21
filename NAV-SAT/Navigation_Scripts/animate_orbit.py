@@ -8,9 +8,12 @@ from Orbit import absorb, write_orbit
 
 from datetime import datetime, timedelta
 
-from solution import ask_path, ask_satellite
+from solution import  ask_satellite,ask_path
 
 import numpy as np
+
+import  os
+
 
 # Configuration settings
 
@@ -32,12 +35,17 @@ def elliptial_parameter(a: float, e: float) -> dict:
     return {'width': a * 2 * scaling_factor, 'height': 2 * sqrt((1 - e ** 2) * a ** 2) * scaling_factor}
 
 
+
+
+
 # gets the distance to focus of an ellipse from center
 def get_focus(mob: Ellipse) -> float:
     a = mob.get_width() / 2
     b = mob.get_height() / 2
 
     return sqrt(a ** 2 - b ** 2)
+
+
 
 
 # Recursive angular correction-> condenses any angle between 0 to 2pi
@@ -51,6 +59,8 @@ def angular_correction(ang) -> float:
         # SV animation snapshot
 
 
+
+
 # angle between two vector
 def angle(vct1: np.array, vct2: np.array) -> float:
     dot_product = np.dot(vct1, vct2)
@@ -61,6 +71,8 @@ def angle(vct1: np.array, vct2: np.array) -> float:
 
     cos_correctiom = np.arccos(dot_product / (norm1 * norm2))
     return (180 / np.pi) * cos_correctiom
+
+
 
 
 # Date and Time label generator
@@ -93,6 +105,25 @@ def date_label(tracker: ValueTracker, time: datetime) -> list:
     return [x.set_color(BLUE_C) for x in date_list]
 
 
+# Auto Read Rinex files
+def auto_path():
+    print("Auto Checking for RINEX NAV file on data directory!")
+
+    print("------------------------------------------------")
+    if "data" not in os.listdir(os.getcwd()):
+        print("Data Directory not Found! Manually enter path to RINEX file!")
+        return ask_path()
+    else:
+
+        data_path = os.path.join(os.path.join(os.getcwd() , "data"))
+        print(f"Reading RINEX file : {os.listdir(data_path)[0]} ")
+
+        return os.path.join(data_path, os.listdir(data_path)[0])
+
+
+
+
+
 class SV(Scene):
 
     def construct(self):
@@ -100,7 +131,9 @@ class SV(Scene):
         # reading and write part starts here
 
         # Orbit Data
-        path_to_rinex = ask_path()
+        path_to_rinex = auto_path()
+
+
         satellite_number = ask_satellite(path_to_rinex)
 
         # absorbs and writes orbital data

@@ -4,6 +4,12 @@ from georinex import *
 from datetime import datetime
 
 
+
+
+def listGPS(path: str) -> list:
+    nav_data = rinexnav3(path, use="G")
+
+    return list(nav_data.sv)
 class NoSatelllite(Exception):
     def __init__(self, satellite: str):
         super().__init__("No satellite named " + satellite)
