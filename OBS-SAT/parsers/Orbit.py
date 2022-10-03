@@ -98,24 +98,33 @@ class Orbit(object):
         tE = self.TransTime
 
         tk = weekanamoly(tE, self.Toe)
+        # Correct
+
         mk = self.M0 + n * tk
 
-        E = mk
+        mkdot = n
+
+        ek = mk
         for i in range(0, 10):
-            E = E + (mk - E + (e * sin(E))) / (1 - (e * cos(E)))
+            ek = mk + e * sin(ek)
 
-        vk = 2 * atan((sqrt((1 + e) / (1 - e))) * tan(E / 2))
+        ekdot = mkdot / (1.0 - e * cos(ek))
 
-        phik = vk + self.omega
+        tak = atan2(sqrt(1.0 - e ** 2) * sin(ek), cos(ek) - e)
 
-        duk = self.C_us * sin(2 * phik) + self.C_uc * cos(2 * phik)
-        drk = self.C_rs * sin(2 * phik) + self.C_rc * cos(2 * phik)
-        dik = self.C_is * sin(2 * phik) + self.C_ic * cos(2 * phik)
+        tankdot = sin(ek) * ekdot * (1.0 + e * cos(tak)) / (sin(tak) * (1.0 - e * cos(ek)))
 
-        uk = phik + duk
-        rk = A * (1 - e * cos(E)) + drk
+        phik = tak + self.omega
 
-        ik = self.i0 + dik + self.i_dot * tk
+        corr_u = self.C_us * sin(2.0 * phik) + self.C_uc * cos(2 * phik)
+        corr_r = self.C_rs * sin(2 * phik) + self.C_rc * cos(2 * phik)
+        corr_i = self.C_is * sin(2 * phik) + self.C_ic * cos(2 * phik)
+
+        uk = phik + corr_u
+
+        rk = A * (1 - e * cos(ek)) + corr_r
+
+        ik = self.i0 + tk * self.i_dot + corr_i
 
         # position in orbital plane
         xprimek = rk * cos(uk)
@@ -134,7 +143,7 @@ class Orbit(object):
 
         b = weekanamoly(tE, self.Toc)
 
-        dt = (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, E, self.sqrtA))
+        dt = (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, ek, self.sqrtA))
 
         tE = tE - dt + self.TGD
 

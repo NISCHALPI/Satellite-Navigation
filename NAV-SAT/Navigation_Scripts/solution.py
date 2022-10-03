@@ -26,6 +26,21 @@ def ask_path() -> str:
 
     return path_to_rinex
 
+def auto_path():
+    print("Auto Checking for RINEX NAV file on data directory!")
+
+    print("------------------------------------------------")
+    if "data" not in os.listdir(os.getcwd()):
+        print("Data Directory not Found! Manually enter path to RINEX file!")
+        return ask_path()
+    else:
+
+        data_path = os.path.join(os.path.join(os.getcwd() , "data"))
+        print(f"Reading RINEX file : {os.listdir(data_path)[0]} ")
+
+        return os.path.join(data_path, os.listdir(data_path)[0])
+
+
 
 # checks valid sat
 def ask_satellite(path_to_rinex: str) -> str:
@@ -53,7 +68,7 @@ def ask_satellite(path_to_rinex: str) -> str:
 
 
 if __name__ == '__main__':
-    path_to_rinex = ask_path()
+    path_to_rinex = auto_path()
 
     satellite_number = ask_satellite(path_to_rinex)
 

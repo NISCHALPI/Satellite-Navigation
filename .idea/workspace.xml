@@ -2,11 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f337d5cb-9635-4279-8756-8b7ba8a2c533" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/OBS-SAT/parsers/threads/Fthread.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/OBS-SAT/parsers/threads/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/python.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/mp_target.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/superparser.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/G01_solution.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/Orbit.py" beforeDir="false" afterPath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/Orbit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/data/AMC400USA_R_20220911900_01H_GN.rnx" beforeDir="false" afterPath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/data/AMC400USA_R_20220911900_01H_GN.rnx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/solution.py" beforeDir="false" afterPath="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/solution.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/Orbit.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/Orbit.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,19 +37,40 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "last_opened_file_path": "/home/hades/Desktop/Codes/python/Satellite-Navigation/OBS-SAT/parsers"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/hades/Desktop/Codes/python/Satellite-Navigation/OBS-SAT/parsers&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/OBS-SAT/parsers" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.assembly">
+  <component name="RunManager" selected="Python.solution">
+    <configuration name="Orbit" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/Orbit.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="assembly" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="python" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -60,6 +84,27 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/OBS-SAT/assembly.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="solution" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="python" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/NAV-SAT/Navigation_Scripts/solution.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -111,12 +156,16 @@
       <method v="2" />
     </configuration>
     <list>
+      <item itemvalue="Python.Orbit" />
+      <item itemvalue="Python.solution" />
       <item itemvalue="Python.assembly" />
       <item itemvalue="Python.transformations" />
       <item itemvalue="Python.superparser" />
     </list>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.solution" />
+        <item itemvalue="Python.Orbit" />
         <item itemvalue="Python.assembly" />
         <item itemvalue="Python.transformations" />
         <item itemvalue="Python.superparser" />

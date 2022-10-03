@@ -1,0 +1,19 @@
+Satellite name: G20       UTC-time: 0
+
+position = [-12565921.517911159, -13846636.998189494, 18780974.72880519]
+
+eccentricity = 0.00223578442819
+
+semimajor = 26561612.08413004
+
+inclination = 0.9616826993142018
+
+acending_node = -4.672986856075673
+
+periapsis = 2.0637403777
+
+true_anamoly = 0
+
+time_period = 43080.30166053593 sec  ---> 11.96675046125998 hr
+
+----End of Data----

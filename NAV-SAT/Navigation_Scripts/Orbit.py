@@ -8,7 +8,6 @@ import math
 
 from math import *
 
-
 from parse_rinex import get_orbital_parameters
 
 from datetime import datetime, timedelta
@@ -90,6 +89,9 @@ class Orbit(object):
 
     def getall(self):
 
+        for attrs in self.__dict__:
+            print(f"{attrs} - > {getattr(self, attrs)}")
+
         # Refer to ICD for Formula---
 
         A = self.sqrtA ** 2
@@ -100,48 +102,67 @@ class Orbit(object):
 
         e = self.ecc
 
+        ####ERROR #####
         tE = self.TransTime
 
         tk = weekanamoly(tE, self.Toe)
+
+
         mk = self.M0 + n * tk
 
-        E = mk
+        mkdot = n
+
+        ek = mk
         for i in range(0, 10):
-            E = E + (mk - E + (e * sin(E))) / (1 - (e * cos(E)))
+            ek = mk + e * sin(ek)
 
-        vk = 2 * atan((sqrt((1 + e) / (1 - e))) * tan(E / 2))
+        ekdot = mkdot / (1.0 - e * cos(ek))
 
-        phik = vk + self.omega
 
-        duk = self.C_us * sin(2 * phik) + self.C_uc * cos(2 * phik)
-        drk = self.C_rs * sin(2 * phik) + self.C_rc * cos(2 * phik)
-        dik = self.C_is * sin(2 * phik) + self.C_ic * cos(2 * phik)
 
-        uk = phik + duk
-        rk = A * (1 - e * cos(E)) + drk
+        tak = atan2(sqrt(1.0 - e ** 2) * sin(ek), cos(ek) - e)
+        takdot = sin(ek) * ekdot * (1.0 + e * cos(tak)) / (sin(tak) * (1.0 - e * cos(ek)))
 
-        ik = self.i0 + dik + self.i_dot * tk
+        # Correct
+
+
+        phik = tak + self.omega
+
+
+        corr_u = self.C_us * sin(2.0 * phik) + self.C_uc * cos(2 * phik)
+        corr_r = self.C_rs * sin(2 * phik) + self.C_rc * cos(2 * phik)
+        corr_i = self.C_is * sin(2 * phik) + self.C_ic * cos(2 * phik)
+
+
+        uk = phik + corr_u
+        rk = A * (1 - e * cos(ek)) + corr_r
+        ik = self.i0 + tk * self.i_dot + corr_i
+
+
 
         # position in orbital plane
         xprimek = rk * cos(uk)
         yprimek = rk * sin(uk)
 
+
         omegak = self.omega0 + (self.omegadot - omegaE) * tk - omegaE * self.Toe
 
+
         # ECFC coordinates
-        x = xprimek * cos(omegak) - (yprimek * sin(omegak) * cos(ik))
-        y = xprimek * sin(omegak) + (yprimek * cos(omegak) * cos(ik))
+        x = xprimek*cos(omegak) - yprimek*sin(omegak)*cos(ik)
+        y = xprimek*sin(omegak) + yprimek*cos(omegak)*cos(ik);
         z = yprimek * sin(ik)
 
+
         orbital_element = {'position': [x, y, z], 'eccentricity': e, 'semimajor': A,
-                           'inclination': ik, 'acending_node': omegak, 'periapsis': self.omega, 'true_anamoly': vk,
-                           'time_period': (2*math.pi/n)}
+                           'inclination': ik, 'acending_node': omegak, 'periapsis': self.omega, 'true_anamoly': 0,
+                           'time_period': (2 * math.pi / n)}
 
         # SV- GPST time correction
 
         b = weekanamoly(tE, self.Toc)
 
-        tE = tE - (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, E, self.sqrtA)) + self.TGD
+        tE = tE - (self.a0 + self.a1 * b + self.a2 * b ** 2 + rel_corr(e, ek, self.sqrtA)) + self.TGD
 
         # GPST- UTC calculations
         if self.UTC_CORR:
@@ -158,7 +179,8 @@ class Orbit(object):
 
             orbital_element['UTC'] = UTC_date
         else:
-            raise NoUTC
+            orbital_element['UTC'] = 0
+            # raise NoUTC
 
         return orbital_element
 
@@ -166,9 +188,6 @@ class Orbit(object):
 def absorb(path: str, sat: str) -> dict:
     data = get_orbital_parameters(path, sat)
     return Orbit(data).getall()
-
-
-
 
 
 # Orbital Writer -- writes the orbital parameter to a text file--
@@ -183,13 +202,9 @@ def write_orbit(data: dict, sat: str) -> None:
         if key == 'UTC':
             continue
         if key == 'time_period':
-            txt.write(f"\n{key} = {data[key]} sec  ---> {data[key]/3600} hr\n")
+            txt.write(f"\n{key} = {data[key]} sec  ---> {data[key] / 3600} hr\n")
             continue
-
 
         txt.write(f"\n{key} = {data[key]}\n")
 
     txt.write("\n----End of Data----\n")
-
-
-
