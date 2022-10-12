@@ -11,29 +11,32 @@
 import numpy as np
 import sys
 
-sys.path.append('../')
-sys.path.append('../parsers')
-from threaded.threads.Fthread import Fthread
-from parsers.mp_target import Satellite
+
 
 # Constants
 c = 299792458
 
 # TOLERANCE
-epsilon = 0.001
+epsilon = 0.00001
 
 
-def calcualtePseudorange(satelliteCoords, provisionalParam):
+def __calcualtePseudorange(satelliteCoords, provisionalParam):
     return np.linalg.norm(satelliteCoords - np.array(provisionalParam[0:3])) + c * provisionalParam[3]
 
 
-def calculateB(gps: list, provisional_parameter: np.array) -> np.array:
+def __calculateB(gps: list, provisional_parameter: np.array) -> np.array:
+    """
+
+    :param gps: GPS satellite list
+    :param provisional_parameter: Provisional Parameters as numPy array
+    :return: the b matrix , P - Pcalc in Taylor Series
+    """
     # Initialize
     b = []
 
     # Fills b with (P - Pcomputed)
     for sat in gps:
-        b.append(sat.C1C - calcualtePseudorange(sat.position, provisional_parameter))
+        b.append(sat.C1C - __calcualtePseudorange(sat.position, provisional_parameter))
 
     # Converts to  a column vector
     b = np.array(b).reshape(-1, 1)
@@ -44,13 +47,22 @@ def calculateB(gps: list, provisional_parameter: np.array) -> np.array:
     return b
 
 
-def calculateDesign(gps: list, provisional_parameter: np.array) -> np.array:
+def __calculateDesign(gps: list, provisional_parameter: np.array) -> np.array:
+
+    """
+
+    :param gps: GPS satellite list
+    :param provisional_parameter: Provisional Parameters as numPy array
+    :return: The design matrix
+    """
+
+
     # Initialize Design Matrix
     A = []
 
     for sat in gps:
-        threeColumn = (provisional_parameter[0:3] - sat.position) / calcualtePseudorange(sat.position,
-                                                                                         provisional_parameter)
+        threeColumn = (provisional_parameter[0:3] - sat.position) / __calcualtePseudorange(sat.position,
+                                                                                           provisional_parameter)
         threeColumn = np.append(threeColumn, c)
 
         A.append(threeColumn)
@@ -66,17 +78,25 @@ def calculateDesign(gps: list, provisional_parameter: np.array) -> np.array:
     return A
 
 
-def linear_model(__GPS_SATELLITE: Satellite):
+def linear_model(__GPS_SATELLITE: list) -> tuple:
+
+    """
+    :param __GPS_SATELLITE: Gps satellite list( Satellite )
+    :return: dt (time offset of receiver ) , coordinates( coordinates of receiver )
+    """
+
     # Initial Provisional parameter
     provisionalParameter = np.array([0, 0, 0, 0])
 
+    # While Loop Iteration
     while True:
         # Calculate b given provisional parameter
-        b = calculateB(__GPS_SATELLITE, provisionalParameter)
+        b = __calculateB(__GPS_SATELLITE, provisionalParameter)
+
 
 
         # Calculate design matrix given
-        A = calculateDesign(__GPS_SATELLITE, provisionalParameter)
+        A = __calculateDesign(__GPS_SATELLITE, provisionalParameter)
 
 
 
@@ -93,11 +113,13 @@ def linear_model(__GPS_SATELLITE: Satellite):
         tempCorrection = np.dot(pseudoInv, ATB).flatten()
 
 
-
+        # The Break Condition
         if np.linalg.norm(tempCorrection) < epsilon:
             provisionalParameter = provisionalParameter + tempCorrection
             break
 
+        # The Update Condition
         provisionalParameter = provisionalParameter + tempCorrection
 
-        print(provisionalParameter)
+
+    return provisionalParameter[3] , provisionalParameter[0:3]

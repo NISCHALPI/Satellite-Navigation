@@ -5,7 +5,7 @@
 from parsers.superparser import parse
 from calculations.linear_model_calculation import linear_model
 from transformation.lat_log import Earth
-from test_data import get_testdata
+import numpy as np
 
 
 # Print SV function
@@ -57,24 +57,18 @@ def main() -> None:
 
     print("-------------------------------------------END-OF-SV-DATA------------------------------------------\n")
 
-    # work on linear model
-    print("\n-------------------------------------------STARTING-THREADED-LINEAR "
+
+    print("\n-------------------------------------------STARTING-LINEAR- MODEL "
           "MODEL------------------------------------------\n")
 
-    sat_data = sat_data[0:4]
 
-    test_data = get_testdata()
 
-    index = 0
+    ## receiverTime , position
 
-    for loc, pseudo in test_data:
-        sat_data[index].C1C = pseudo
-        sat_data[index].position = loc
-        sat_data[index].bias = 0
-        index += 1
+    dt, position = linear_model(sat_data)
 
-    ## dt, position = linear_model(sat_data)
-    linear_model(sat_data)
+
+
 
 
 if __name__ == "__main__":
