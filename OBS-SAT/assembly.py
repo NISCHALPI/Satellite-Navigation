@@ -57,18 +57,40 @@ def main() -> None:
 
     print("-------------------------------------------END-OF-SV-DATA------------------------------------------\n")
 
-
     print("\n-------------------------------------------STARTING-LINEAR- MODEL "
           "MODEL------------------------------------------\n")
 
 
-
-    ## receiverTime , position
-
+    # receiverTime , position into the linear model
     dt, position = linear_model(sat_data)
 
 
+    # Printing the ECFC-COORDINATES
+    print(f"The ECFC coordinates of receiver: ")
+    print(f"X-coord = {position[0]} m")
+    print(f"Y-coord = {position[1]} m")
+    print(f"X-coord = {position[2]} m")
 
+    # Convert it into lat_long
+    print("\n-------------------------------------------LINEAR-MODEL-COMPLETED-SUCCESSFULLY"
+          "---------------------------\n")
+
+    print("\n-------------------------------------------CONVERTING-WGS-84-ELLIPSOIDAL COORDINATE"
+          "---------------------------\n")
+
+    #initialize earth coordinate system
+    # initialize radians=False to get everything in degree
+    earth = Earth(rads=False)
+
+    # Extract ellipsoidal coordinates
+    ellipsoidalCords = earth.CTE(*position)
+
+    print(f"The Ellipsoidal coordinates of receiver: ")
+    print(f"Latitude= {ellipsoidalCords[0]} degree")
+    print(f"Longitude = {ellipsoidalCords[1]} degree")
+    print(f"Height = {ellipsoidalCords[2]} m")
+
+    print("\n--------------------------------------------ANALYSIS-COMPLETED-------------------------\n")
 
 
 if __name__ == "__main__":

@@ -93,7 +93,7 @@ class Planet(object):
             h = self.__iter1(p, lat)
             lat = self.__iter2(p, z, h, lat)
 
-            if np.abs(lat - temp) < 1e-3:
+            if np.abs(lat - temp) < 1e-8:
                 break
 
         if not self.rads:

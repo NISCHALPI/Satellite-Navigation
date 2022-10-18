@@ -95,7 +95,8 @@ class Orbit(object):
 
         e = self.ecc
 
-        tE = self.TransTime
+        # Te is time of clock
+        tE = self.Toc
 
         tk = weekanamoly(tE, self.Toe)
         # Correct

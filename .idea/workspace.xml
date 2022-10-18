@@ -4,12 +4,11 @@
     <list default="true" id="816d1c94-ae6f-4e37-820c-eeeac0e2d704" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/Satellite-Navigation.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Satellite-Navigation.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/python.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/OBS-SAT/assembly.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/assembly.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/OBS-SAT/calculations/linear_model_calculation.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/calculations/linear_model_calculation.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/data2/ac390270.22d.gz" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/parsers/Orbit.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/parsers/Orbit.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/OBS-SAT/transformation/lat_log.py" beforeDir="false" afterPath="$PROJECT_DIR$/OBS-SAT/transformation/lat_log.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -27,14 +26,14 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "settings.editor.selected.configurable": "reference.settingsdialog.IDE.editor.colors.Python"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.IDE.editor.colors.Python&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager">
     <configuration default="true" type="PythonConfigurationType" factoryName="Python">
       <module name="Satellite-Navigation" />
@@ -111,8 +110,5 @@
         </entry>
       </map>
     </option>
-  </component>
-  <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Satellite_Navigation$assembly.coverage" NAME="assembly Coverage Results" MODIFIED="1665541527241" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/OBS-SAT" />
   </component>
 </project>
