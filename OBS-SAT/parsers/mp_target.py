@@ -73,11 +73,12 @@ __data = ["C1C", "C2C"]
 __data2 = ["C1L", "C2L"]
 
 # Function to find intersection of epoch of observation between RINEX nav and obs file
-def __INTERSECTION(obs, nav) -> tuple:
+def __INTERSECTION(obs, nav, quite) -> tuple:
     """Output is all the sv captured and time of intersection in a tuple (sv : np.array, time: np.datetime64) """
 
-    print("\nChecking for common epoch in Observation and Navigation file!")
-    print("------------------------------------")
+    if not quite: 
+        print("\nChecking for common epoch in Observation and Navigation file!")
+        print("------------------------------------")
     # time of capture -- all time at which satellite is captured by receiver
     __obs_time = np.array(obs.time)
 
@@ -91,10 +92,12 @@ def __INTERSECTION(obs, nav) -> tuple:
     if np.size(intersection_time) == 0:
         raise "No Intersection time found between Navigation or Observation file!"
     else:
-        print("Intersection Found!")
-        for time in intersection_time:
-            print(time)
-            print("\n")
+        if not quite:
+            print("Intersection Found!")
+            
+            for time in intersection_time:
+                print(time)
+                print("\n")
 
     return np.intersect1d(obs.sel(time=intersection_time[0]).sv, nav.sel(time=intersection_time[0]).sv), \
            intersection_time[0]
@@ -103,11 +106,12 @@ def __INTERSECTION(obs, nav) -> tuple:
 
 
 # CHECKS IF DATA EXISTS IN INTERSECTION
-def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time: np.datetime64 or np.array) -> list:
+def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time: np.datetime64 or np.array, quite) -> list:
     """Checks if the navigation file has filled parameters for the satellite"""
 
-    print("Checking data integrity in Navigation File for intersecting epoch!")
-    print("------------------------------------")
+    if not quite:
+        print("Checking data integrity in Navigation File for intersecting epoch!")
+        print("------------------------------------")
     filtered_list = []
 
 
@@ -117,12 +121,13 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
             filtered_list.append(_sv)
     if len(filtered_list) < 4:
         raise """Less than 4 satellite observed! Undetermined Solution: At least 4 required!!!"""
+    
+    if not quite: 
+        for _ in filtered_list:
+            print(f"Found complete data for SV = {_}")
 
-    for _ in filtered_list:
-        print(f"Found complete data for SV = {_}")
-
-    print("------------------------------------")
-    print(f"Total SV available: {len(filtered_list)}\n")
+        print("------------------------------------")
+        print(f"Total SV available: {len(filtered_list)}\n")
 
     return filtered_list
 
@@ -131,8 +136,8 @@ def __CHECK_NAV(nav_data: xarray.Dataset, sv_list: list or np.array, epoch_time:
 # MULTIPROCESSING TARGET FUNCTION
 
 
-def __EXTRACT_SV(obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isThread: bool =
-False, queue: mp.Queue = None, ) -> None or Satellite:
+def __EXTRACT_SV(quite : bool , obs: xarray.Dataset, nav: xarray.Dataset, SV: str, time: np.datetime64, isThread: bool =
+False, queue: mp.Queue = None,  ) -> None or Satellite:
     """EXTRACTS DATA FROM SATELLITE GIVEN RINEX NAV AND OBS FILE 
         DESIGNED FOR MULTIPROCESSING!
         
@@ -177,7 +182,8 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
 
     ####################################NAV SECTION DATA EXTRACT ################################################
-    print(f"Extracting and Processing Navigation Data for {sat.name}")
+    if not quite: 
+        print(f"Extracting and Processing Navigation Data for {sat.name}")
     # Extracts position and sv clock error
 
     # Implementer in navigation.py
@@ -189,7 +195,7 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
 
     ###################################### APPLY PRE-PREOCESSING HERE ##############
-    preprocessing(sat)
+    preprocessing(sat, quite)
 
 
 
@@ -202,20 +208,21 @@ False, queue: mp.Queue = None, ) -> None or Satellite:
 
 
 # Fix me! Complete Multiprocess
-def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
+def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset, quite) -> list:
 
     # Checks if there is intersection between two RINEX files
-    common_sv, common_t = __INTERSECTION(obs, nav)
+    common_sv, common_t = __INTERSECTION(obs, nav, quite)
 
 
     # Checks if all the observed satellite have enough data to calculate their position
-    common_sv = __CHECK_NAV(nav, common_sv, common_t)
+    common_sv = __CHECK_NAV(nav, common_sv, common_t, quite)
 
     ######################Multiprocess Process Implementation###################################
-    print("------------------------------------PARSING STARTING------------------------------------------")
-    print(f"Spawning {len(common_sv)} process for parsing!")
-    print("OUTPUT MAY BE OUT OF SYNC")
-    print("------------------------------------")
+    if not quite:
+        print("------------------------------------PARSING STARTING------------------------------------------")
+        print(f"Spawning {len(common_sv)} process for parsing!")
+        print("OUTPUT MAY BE OUT OF SYNC")
+        print("------------------------------------")
 
     # TARGET QUEUE
     queue = mp.Queue()
@@ -229,7 +236,7 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     # Create targe Process
     for sat in common_sv:
         process.append(
-            mp.Process(target=__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
+            mp.Process(target=__EXTRACT_SV, args=(quite , obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
                                                   sat, common_t, False, queue)))
 
     # Async Process Start
@@ -244,35 +251,36 @@ def MULTIPROCESS(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     while queue.empty() is False:
         sv_list.append(queue.get())
 
-    print("------------------------------------")
-    print("All process completed!\n")
+    if not quite:
+        print("------------------------------------")
+        print("All process completed!\n")
 
     return sv_list
 
 
-def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
+def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset, quite : bool = False) -> list:
     # Checks if there is intersection between two RINEX files
-    common_sv, common_t = __INTERSECTION(obs, nav)
+    common_sv, common_t = __INTERSECTION(obs, nav, quite)
 
 
     # Checks if all the observed satellite have enough data to calculate their position
-    common_sv = __CHECK_NAV(nav, common_sv, common_t)
+    common_sv = __CHECK_NAV(nav, common_sv, common_t, quite)
 
     ######################Multithreads Implementation###################################
 
     # EMPTY PROCESS LIST
     threads = []
+    if not quite:
+        print("------------------------------------PARSING STARTING------------------------------------------\n")
 
-    print("------------------------------------PARSING STARTING------------------------------------------\n")
-
-    print(f"Spawning {len(common_sv)} async thread for parsing!")
-    print("OUTPUT MAY BE OUT OF SYNC")
-    print("------------------------------------")
+        print(f"Spawning {len(common_sv)} async thread for parsing!")
+        print("OUTPUT MAY BE OUT OF SYNC")
+        print("------------------------------------")
 
     # Create target threads
     for sat in common_sv:
         threads.append(
-            Fthread(__EXTRACT_SV, args=(obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
+            Fthread(__EXTRACT_SV, args=(quite , obs.sel(sv=sat, time=common_t), nav.sel(sv=sat, time=common_t),
                                         sat, common_t, True)))
 
     # Async thread Start
@@ -283,7 +291,9 @@ def MULTITHREAD(obs: xarray.Dataset, nav: xarray.Dataset) -> list:
     for trd in threads:
         trd.join()
 
-    print("------------------------------------")
-    print("All threads completed!\n")
+    if not quite: 
+        print("------------------------------------")
+        print("All threads completed!\n")
+    
     # Returns the threads
     return [thread.get for thread in threads]

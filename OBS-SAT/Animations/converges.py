@@ -66,8 +66,8 @@ class Linear(ThreeDScene):
         self.play(tracker.animate.set_value(9), run_time=4)
 
 
-
-
+scene = Linear()
+scene.render()
 
 
 

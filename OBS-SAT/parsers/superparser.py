@@ -16,19 +16,21 @@ from mp_target import MULTIPROCESS, MULTITHREAD
 # SECTION 1 : PRELIMINARY OPERATIONS AND FUNCTION DEFINITION
 # Function to open the RINEX files
 
-def OPEN(path: str, satID="G"):
+def OPEN(path: str, satID="G", quite : bool = False):
     """Opens RINEX file automatically.
        Extracts only GPS satellite"""
 
 
     if "MO" in path.upper() or "GO" in path.upper():
         try:
-            print("Reading Observational File!")
+            if not quite: 
+                print("Reading Observational File!")
             return rinexheader(path), rinexobs(path, use=satID)
 
         except:
             print("Cannot open the RINEX file! Check if you have permission to read the file")
 
+            
             print("Checking the file path!")
             if os.path.exists(path):
                 print("File Exists! But cannot read")
@@ -38,7 +40,8 @@ def OPEN(path: str, satID="G"):
 
     elif "GN" in path.upper() or "MN" in path.upper():
         try:
-            print("Reading Navigation File!")
+            if not quite: 
+                print("Reading Navigation File!")
             return rinexnav(path, use=satID)
         except:
             print("Cannot open the RINEX file! Check if you have permission to read the file")
@@ -57,21 +60,24 @@ def OPEN(path: str, satID="G"):
 # NOTE: If you put your files in the data dir in the programs dir it will automatically
 # fnd the data. There must be only two data files - RINEX NAV(valid) AND RINEX OBS FILE FOR SAME
 
-def CHECK_DATADIR() -> tuple:
+def CHECK_DATADIR(quite) -> tuple:
     # Name of data dirs
     datsDir = os.path.abspath('./data')
 
-    print("Searching for RINEX file in OBS-SAT/data directory:")
-    print("------------------------------------")
+    if not quite:
+        print("Searching for RINEX file in OBS-SAT/data directory:")
+        print("------------------------------------")
 
     # Checks if path exists or not
     if os.path.exists(datsDir) and len(os.listdir(datsDir)) == 2:
         for file_name in os.listdir(datsDir):
             if 'MO' in file_name.upper() or 'GO' in file_name.upper():
-                print("Found Observational File!")
+                if not quite: 
+                    print("Found Observational File!")
                 path_to_obs = os.path.join(datsDir, file_name)
             elif 'GN' in file_name.upper() or 'MN' in file_name.upper():
-                print("Found Navigation File!")
+                if not quite: 
+                    print("Found Navigation File!")
                 path_to_nav = os.path.join(datsDir, file_name)
             else:
                 print("RINEX file found!")
@@ -90,20 +96,27 @@ def CHECK_DATADIR() -> tuple:
 
 # SECTION 3 : MAIN FUNCTION
 
-def parse(signal: bool = True) -> list:
+def parse(signal: bool = True, path_to_obs: str= None , path_to_nav: str = None , quite :bool = False) -> list:
     """SIGNAL: True <multithread> | False <multiprocess> : default: MULTITHREAD"""
     """ARGS = signal <int>
        RES = list <Satellite>"""
 
-    # Extracts data from User
-    path_to_obs, path_to_nav = CHECK_DATADIR()
 
-    print("\nReading Files:")
-    print("------------------------------------")
+    # Check if data dir is already passed
+    if path_to_nav is None and path_to_obs is None:
+        # Extracts data from User
+        path_to_obs, path_to_nav = CHECK_DATADIR(quite)
+
+
+
+    if not quite:    
+        print("\nReading Files:")
+        print("------------------------------------")
+    
     # open observation and navigation files
-    obs_header, obs = OPEN(path_to_obs)
+    obs_header, obs = OPEN(path_to_obs, "G" , quite)
 
-    nav = OPEN(path_to_nav)
+    nav = OPEN(path_to_nav, "G" , quite)
 
     # All measurement in all channel L1, L2, L5 ~ contains both range, phase, doppler, signal strength
     __all_data = np.array(obs.data_vars)
@@ -115,16 +128,21 @@ def parse(signal: bool = True) -> list:
 
     # The multiprocess or multithread call to extract the data from files -> out : list<Satellite, Satellite , ......>
 
-    print("\nCompute Capability:")
-    print("------------------------------------")
-    print(f"{os.cpu_count()} available CPU-cores")
+    if not quite: 
+        print("\nCompute Capability:")
+        print("------------------------------------")
+        print(f"{os.cpu_count()} available CPU-cores")
 
     if signal:
-        print("Compute-Mode: Multithreading")
-        sat_data = MULTITHREAD(obs, nav)
+        if not quite: 
+            print("Compute-Mode: Multithreading")
+        
+        sat_data = MULTITHREAD(obs, nav, quite)
     else:
-        print("Compute-Mode: Multiprocessing")
-        sat_data = MULTIPROCESS(obs, nav)
+        if not quite:
+            print("Compute-Mode: Multiprocessing")
+        
+        sat_data = MULTIPROCESS(obs, nav, quite)
 
 
     # Checks if receiver clock offset is applied or not
