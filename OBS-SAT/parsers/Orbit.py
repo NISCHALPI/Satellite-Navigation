@@ -150,6 +150,16 @@ class Orbit(object):
 
         # Needed for observationl stuff
         orbital_element["SV_CLOCK_ERROR"] = dt
+        
+        # Animation Parameters
+        orbital_element['eccentricity'] = e
+        orbital_element['semimajor'] = A
+        orbital_element['inclination'] = ik
+        orbital_element['acending_node'] = omegak
+        orbital_element['periapsis'] = self.omega
+        orbital_element['true_anamoly'] = tak
+        orbital_element["time_period"] = (2 * math.pi) / n
+
 
         # GPST- UTC calculations
         if self.UTC_CORR:

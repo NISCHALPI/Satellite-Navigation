@@ -46,7 +46,7 @@ __fields = [
 
 
 ################################################HELPER FUNCTION#########################################################
-def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> tuple:
+def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64, usageANIM : bool =  False) -> tuple:
     """Extracts Navigation Data
     ARGS: absolute path to rinex , Name of SV, Epoch time
     """
@@ -63,6 +63,11 @@ def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64) -> tuple:
 
     data = __orbit.getall()
 
-    return np.array(data['position']), data['SV_CLOCK_ERROR']
+    # For animation usage 
+    if usageANIM:
+        return data
+    else:
+    # For observational usage 
+        return np.array(data['position']), data['SV_CLOCK_ERROR']
 
 #################################################END###################################################################
