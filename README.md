@@ -129,4 +129,4 @@ A random point is choosen on earth and using the information of navigation equat
 
 
 ## Slides 
-Presentation sildes are included in {home}/slides folder. There are not ment for distribution. Please use it only as reference. 
+Presentation sildes are included in {home}/extra folder. These are not meant for distribution. Please use it only as reference. 

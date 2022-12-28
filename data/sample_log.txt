@@ -1,0 +1,231 @@
+Searching for RINEX file in OBS-SAT/data directory:
+------------------------------------
+Found Observational File!
+Found Navigation File!
+
+Reading Files:
+------------------------------------
+Reading Observational File!
+Reading Navigation File!
+
+Compute Capability:
+------------------------------------
+12 available CPU-cores
+Compute-Mode: Multithreading
+
+Checking for common epoch in Observation and Navigation file!
+------------------------------------
+Intersection Found!
+2022-02-11T10:00:00.000000000
+
+
+Checking data integrity in Navigation File for intersecting epoch!
+------------------------------------
+Found complete data for SV = G05
+Found complete data for SV = G06
+Found complete data for SV = G07
+Found complete data for SV = G09
+Found complete data for SV = G11
+Found complete data for SV = G13
+Found complete data for SV = G19
+Found complete data for SV = G20
+Found complete data for SV = G28
+Found complete data for SV = G30
+------------------------------------
+Total SV available: 10
+
+------------------------------------PARSING STARTING------------------------------------------
+
+Spawning 10 async thread for parsing!
+OUTPUT MAY BE OUT OF SYNC
+------------------------------------
+Extracting and Processing Navigation Data for G05
+Preprocessing G05 satellite's data!
+Earth rotation transformation applied for G05
+
+
+Extracting and Processing Navigation Data for G06
+Preprocessing G06 satellite's data!
+Earth rotation transformation applied for G06
+
+
+Extracting and Processing Navigation Data for G07
+Preprocessing G07 satellite's data!
+Earth rotation transformation applied for G07
+
+
+Extracting and Processing Navigation Data for G09
+Preprocessing G09 satellite's data!
+Earth rotation transformation applied for G09
+
+
+Extracting and Processing Navigation Data for G11
+Preprocessing G11 satellite's data!
+Ionnospheric Corrections Appllied for  G11
+Earth rotation transformation applied for G11
+
+
+Extracting and Processing Navigation Data for G13
+Preprocessing G13 satellite's data!
+Earth rotation transformation applied for G13
+
+
+Extracting and Processing Navigation Data for G19
+Preprocessing G19 satellite's data!
+Earth rotation transformation applied for G19
+
+
+Extracting and Processing Navigation Data for G20
+Preprocessing G20 satellite's data!
+Earth rotation transformation applied for G20
+
+
+Extracting and Processing Navigation Data for G28
+Preprocessing G28 satellite's data!
+Earth rotation transformation applied for G28
+
+
+Extracting and Processing Navigation Data for G30
+Preprocessing G30 satellite's data!
+Earth rotation transformation applied for G30
+
+
+------------------------------------
+All threads completed!
+
+------------------------------------PARSING COMPLETE------------------------------------------
+
+-------------------------------------------SV-DATA-VIEW------------------------------------------
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> -7.104035466909e-05
+position -> [[25330576.  -4129913.8 -7298312. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G05
+C1C -> 23483903.321456563
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0001980816014111
+position -> [[  6742319.5  19923906.  -16102159. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G06
+C1C -> 21073816.39417161
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0003094566054642
+position -> [[-4953234.5 25815192.    649550.9]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G07
+C1C -> 23380522.97939645
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> -0.0003546318039298
+position -> [[ -1314922.6  17498422.  -19998268. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G09
+C1C -> 22840116.11481491
+
+
+snc -> False
+t_apply -> True
+dual -> True
+rcoff -> False
+bias -> -9.264936670661e-05
+position -> [[ 14009679.    6221523.5 -21694366. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G11
+C1C -> 22062472.31531488
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0002599051222205
+position -> [[20674634.  9769313. 13494137.]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G13
+C1C -> 23354707.976437274
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0001174695789814
+position -> [[16693362.  20624520.   2332516.5]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G19
+C1C -> 20983272.89082306
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0005167559720576
+position -> [[ 21151918.    2014957.4 -15784487. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G20
+C1C -> 22020335.23804933
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> 0.0004028840921819
+position -> [[12549562. 11690773. 20742304.]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G28
+C1C -> 25384689.99328431
+
+
+snc -> False
+t_apply -> True
+dual -> False
+rcoff -> False
+bias -> -0.0005126819014549
+position -> [[ 1197940.9 24866402.   8965426. ]]
+time -> 2022-02-11T10:00:00.000000000
+name -> G30
+C1C -> 23404649.40959072
+
+
+-------------------------------------------END-OF-SV-DATA------------------------------------------
+
+
+-------------------------------------------STARTING-LINEAR- MODEL MODEL------------------------------------------
+
+The ECFC coordinates of receiver: 
+X-coord = 4097226.265865462 m
+Y-coord = 4429155.219382341 m
+X-coord = -2065791.0395121013 m
+
+-------------------------------------------LINEAR-MODEL-COMPLETED-SUCCESSFULLY---------------------------
+
+
+-------------------------------------------CONVERTING-WGS-84-ELLIPSOIDAL COORDINATE---------------------------
+
+The Ellipsoidal coordinates of receiver: 
+Latitude= -19.018375396728516 degree
+Longitude = 47.22937774658203 degree
+Height = 1590.5 m
+
+--------------------------------------------ANALYSIS-COMPLETED-------------------------
+
