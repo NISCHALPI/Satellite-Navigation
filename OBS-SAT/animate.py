@@ -246,14 +246,15 @@ class Move_along_edge(Animation):
 @click.option("--no-axis", "no_axis",is_flag = True, help = "Turn off axis")
 @click.option("--trajectory", "trajectory", is_flag = True, help = "Show the trajectory")
 @click.option("-t", "--time" , "time", type = float , required = False , default = 8.00 , help = "animation time (default: 8 sec)")
-def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajectory: bool = False, no_axis : bool = False, time: float  = 8) -> None :
+@click.option("--no-legend", "no_legend", is_flag=True, help = "Toggle Legend")
+def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajectory: bool = False, no_axis : bool = False, time: float  = 8
+, no_legend : bool = False) -> None :
     
-    
+    """Animate GPS satellite path and find satellite coordinate from brodcast ephimeris"""
     # Get the nav data 
     navData = getData(path_to_nav, auto, sv)
 
-    #FIX ME 
-    #print(navData)
+    
     
 
     # Animation class
@@ -262,7 +263,7 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajecto
             # SECTION: CAMERA SETTINGS 
             
 
-            # Beginning Camara Orientation and Rotation
+            # Beginning Camara Orientation and Rotation #(Change View Angle )
             self.camera.set_euler_angles(phi=PI / 2.6, theta=PI / 4)
             # Ambient Camera Rotation
             self.add(self.camera)
@@ -315,21 +316,23 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajecto
 
             
             ## CREATE LEGEND 
-            legend = Table([[sv] for sv in navData.keys()], col_labels= [Text("Legend")], include_outer_lines=True)
-            
-            legend.scale( 1 / (1 + len(navData.keys())))
-            
-            legend.move_to(RIGHT * 6 + UP* 3)
+            if not no_legend:
+                legend = Table([[sv] for sv in navData.keys()], col_labels= [Text("Legend")], include_outer_lines=True)
+                
+                legend.scale(0.25)
+                
+                legend.move_to(RIGHT * 6 + UP)
 
-            row = 2
-            
-            legend.add_highlighted_cell((1,1), color=WHITE)
-            for sat, path, randCol in tupMobject:
-                sat: Dot3D
-                legend.add_highlighted_cell((row, 1),  color=randCol)
-                row += 1
-            
-            legend.fix_in_frame()
+                row = 2
+                
+                legend.add_highlighted_cell((1,1), color=WHITE)
+                
+                for sat, path, randCol in tupMobject:
+                    sat: Dot3D
+                    legend.add_highlighted_cell((row, 1),  color=randCol)
+                    row += 1
+                
+                legend.fix_in_frame()
             
             ## END OF LEGEND 
             
@@ -339,7 +342,8 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajecto
             # SAT MOVING ANIMATION  
             animations.clear()
             
-            self.play(FadeIn(legend) , run_time = 2)
+            if not no_legend:
+                self.play(FadeIn(legend) , run_time = 2)
             
             for sat,  path, randCol in tupMobject:
                animations.append(Move_along_edge(mobject= sat , path=path, rate_functions= linear))
@@ -351,7 +355,7 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajecto
             
             
     
-    
+    # Render Command 
     with tempconfig({"renderer": "opengl" , "preview" : True, "fps" : 75}) :
         scene = animateSV()
         scene.render()

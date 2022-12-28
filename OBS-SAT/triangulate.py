@@ -53,7 +53,7 @@ COMPUTE = {'thread' : True, "process" : False}
 @click.option("-n", "--nav", "path_to_nav", type= click.Path(exists= True, readable= True, resolve_path= True) , help ="Path to RINEX navigation file")
 @click.option("-o", "--obs", "path_to_obs", type= click.Path(exists= True, readable= True, resolve_path=True) , help ="Path to RINEX observational file")
 @click.option("-c", "--compute", "compute", type = click.Choice(COMPUTE.keys()), help = " Choose a compute mode", default="thread", required= False)
-@click.option("-a", "--auto", "auto", is_flag=True, help = "Read data automatically from {click}/data/ directry")
+@click.option("-a", "--auto", "auto", is_flag=True, help = "Read data automatically from ./data/ directry")
 @click.option("-q", "--quite", "quite", is_flag=True, help = "Only prints reciever coordinate to stdout")
 def main(path_to_obs: str =None, path_to_nav: str = None, compute: str = None, auto: bool = None, quite: bool=None) -> None :
     """ Triangulate GPS reciever coordinate using RINEX files! """
