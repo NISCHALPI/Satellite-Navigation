@@ -20,6 +20,18 @@ git clone https://github.com/NISCHALPI/Satellite-Navigation
 
 ```
 
+Create a conda environment using the dependencies listed in dependencies directory,
+
+```bash
+conda create -n navPy --file dependencies/environment.yml 
+
+```
+For the animation script to work, you will need specific version of manim , numpy,  moderngl and GPU,
+```Text
+manim==0.16.0.post0
+moderngl==5.6.4
+numpy==1.21.6
+```
 
 ## Triangulation Script
 
@@ -27,18 +39,18 @@ git clone https://github.com/NISCHALPI/Satellite-Navigation
 Command : python triangulate.py --help
 
 --------------------------------------------------------------------------------------
-usage: triangulate.py [-h] [-o OBS] [-n NAV] [-c COMPUTE] [-a]
+Usage: triangulate.py [OPTIONS]
 
-Triangulate GPS reciever coordinate using RINEX files!
+  Triangulate GPS reciever coordinate using RINEX files!
 
-options:
-  -h, --help            show this help message and exit
-  -o OBS, --obs OBS     Path to RINEX observation file
-  -n NAV, --nav NAV     Path to RINEX navigation file
-  -c COMPUTE, --compute_mode COMPUTE
-                        Choose a compute mode : <thread> ot <process>
-  -a, --auto            Auto Read Rinex files from data directory
-
+Options:
+  -n, --nav PATH                  Path to RINEX navigation file
+  -o, --obs PATH                  Path to RINEX observational file
+  -c, --compute [thread|process]  Choose a compute mode
+  -a, --auto                      Read data automatically from ./data/
+                                  directry
+  -q, --quite                     Only prints reciever coordinate to stdout
+  --help                          Show this message and exit.
 ----------------------------------------------------------------------------------------
 ```
 
@@ -75,6 +87,36 @@ python triangulate.py --compute process --obs <full_path_to_observation_file> --
 User can animate the orbital path and satellite position using this script. 
 
 ```bash
+python animate.py --help
+--------------------------------------------------------------------------------------
+Usage: animate.py [OPTIONS]
+
+  Animate GPS satellite path and find satellite coordinate from brodcast
+  ephimeris
+
+Options:
+  -n, --nav PATH    Path to RINEX navigation file  [required]
+  -a, --auto        Choose epoch automatically for Animation
+  -s, --sv TEXT     Select specific SV's
+  --no-axis         Turn off axis
+  --trajectory      Show the trajectory
+  -t, --time FLOAT  animation time (default: 8 sec)
+  --no-legend       Toggle Legend
+  --help            Show this message and exit.
+----------------------------------------------------------------------------------------
+```
+For example, use the script to animate satellite coordinate and trajectory using a sample RINEX file
+```bash
+python animate.py -n data2/MADR00ESP_R_20220390000_01D_GN.rnx  --auto --time 12 --no-axis --trajectory
+```
+Animation would look something like this, 
+
+https://user-images.githubusercontent.com/60031022/209759494-083191ed-a7ea-4671-8bad-ad276a4a8bc4.mp4
+
+Users can toggle trjectory and legend in animation. If you know manim, feel free to edit the internal of animation script to suite your needs.
 
 
-'''
+
+
+
+
