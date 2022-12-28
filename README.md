@@ -63,8 +63,11 @@ observation file should have "MO" in fillename and navigation must "GN".
 
 ```bash
 python triangulate.py --auto
-
+# The sample output of above command will under data/sample_log.txt file.
 ```
+
+
+
 
 However, user can also pass the rinex file path to the argument. 
 
@@ -116,7 +119,14 @@ https://user-images.githubusercontent.com/60031022/209759494-083191ed-a7ea-4671-
 Users can toggle trjectory and legend in animation. If you know manim, feel free to edit the internal of animation script to suite your needs.
 
 
+## Newton Linear Model
+Solutions to the navigation equations are found by linearizing the equations and using iterative methods for solutions. The linear model can be found in {home}/calculations/linear_model_calculation.py.
+A simple animation of how this works is shown below,
+
+https://user-images.githubusercontent.com/60031022/209762275-f3e65009-68ea-4216-aa34-7bfcac094ae0.mp4
+
+A random point is choosen on earth and using the information of navigation equation, relative error is calculated iteratively and added to the original assumption. Ultimately, the loop is breaked after achieveing some threashold. 
 
 
-
-
+## Slides 
+Presentation sildes are included in {home}/slides folder. There are not ment for distribution. Please use it only as reference. 
