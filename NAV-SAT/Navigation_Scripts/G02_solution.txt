@@ -1,0 +1,19 @@
+Satellite name: G02       UTC-time: 0
+
+position = [21747637.12514907, 15055718.710036196, -526994.5087793003]
+
+eccentricity = 0.0200146602001
+
+semimajor = 26572968.894652683
+
+inclination = 0.9668535568230945
+
+acending_node = -18.230275136895724
+
+periapsis = -1.391971596564
+
+true_anamoly = 0
+
+time_period = 43108.07967442088 sec  ---> 11.974466576228021 hr
+
+----End of Data----

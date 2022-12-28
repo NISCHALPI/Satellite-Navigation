@@ -171,6 +171,9 @@ def getOrbitalMobjects( svName :str = None, svData: dict = None) -> tuple:
     # get elliptical parameter
     a = elliptial_parameter(svData['semimajor'], svData['eccentricity'])
 
+    # Random color 
+    randcol = random_color()
+
     # Orbital path 
     orbital_path = Ellipse(**a)
 
@@ -187,17 +190,52 @@ def getOrbitalMobjects( svName :str = None, svData: dict = None) -> tuple:
     # Angle of Perigee rotation
     path_group.rotate(angle=angular_correction(svData['periapsis']), axis=path_group[1].get_end(), about_point= ORIGIN)
 
-    # Random color 
-    randcol = random_color()
-
+    
     # Satellite 
-    sat = Dot3D(radius=0.06, point=scaling_factor * np.array(svData['position']), color=randcol)
+    sat = Dot3D(radius=0.04, point=scaling_factor * np.array(svData['position']), color=randcol)
 
-    satLable = Text(svName, color =randcol, slant = ITALIC , weight = BOLD, font_size = 20).next_to(sat , direction= UP +RIGHT , buff= 0.1)
 
-    satLable.add_updater(lambda mob : mob.next_to(sat , direction= UP +RIGHT , buff= 0.1))
 
-    return sat , satLable, orbital_path
+
+
+
+
+    return sat.copy() , orbital_path.copy() , randcol
+
+# Move along animation Class 
+class Move_along_edge(Animation):
+
+    def __init__(
+            self,
+            mobject: Mobject,
+            path: VMobject,
+            suspend_mobject_updating: bool | None = False,
+            **kwargs,
+    ):
+        super().__init__(mobject, path, suspend_mobject_updating, **kwargs, )
+        self.path = path
+        self.needed = None
+
+    def begin(self) -> None:
+
+        self.path: Mobject
+
+        for i in np.linspace(0, 1, 3500):
+            if abs(angle(self.path.point_from_proportion(i), self.mobject.get_center())) <= 0.08:
+                self.needed = i
+                break
+        print(self.needed)
+        super().begin()
+
+    def interpolate_mobject(self, alpha: float) -> None:
+        beta = self.needed + self.rate_func(alpha)
+        if beta < 1:
+            self.mobject.move_to(self.path.point_from_proportion(beta))
+        else:
+            self.mobject.move_to(self.path.point_from_proportion(beta - 1))
+
+
+
 
 ###################################################HELPER FUNC###########################################
 
@@ -205,13 +243,17 @@ def getOrbitalMobjects( svName :str = None, svData: dict = None) -> tuple:
 @click.option("-n", "--nav", "path_to_nav" , required = True ,  type = click.Path(exists=True,  resolve_path=True, readable= True),help ="Path to RINEX navigation file" )
 @click.option("-a", "--auto", "auto", is_flag=True, help = "Choose epoch automatically for Animation")
 @click.option("-s", "--sv", "sv" ,  type = str, multiple = True ,  help = "Select specific SV's"  )
-def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = ()) -> None :
+@click.option("--no-axis", "no_axis",is_flag = True, help = "Turn off axis")
+@click.option("--trajectory", "trajectory", is_flag = True, help = "Show the trajectory")
+@click.option("-t", "--time" , "time", type = float , required = False , default = 8.00 , help = "animation time (default: 8 sec)")
+def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = (), trajectory: bool = False, no_axis : bool = False, time: float  = 8) -> None :
     
     
     # Get the nav data 
     navData = getData(path_to_nav, auto, sv)
 
-   
+    #FIX ME 
+    #print(navData)
     
 
     # Animation class
@@ -219,12 +261,13 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = ()) -> None 
         def construct(self):     
             # SECTION: CAMERA SETTINGS 
             
+
             # Beginning Camara Orientation and Rotation
-            self.camera.set_euler_angles(phi=PI / 2.4, theta=PI / 4)
+            self.camera.set_euler_angles(phi=PI / 2.6, theta=PI / 4)
             # Ambient Camera Rotation
             self.add(self.camera)
             self.add(self.camera.light_source)
-            self.camera.add_updater(lambda mob, dt: mob.increment_theta(dt * 0.025))
+            self.camera.add_updater(lambda mob, dt: mob.increment_theta(dt * 0.15))
             self.update_self(0.001)
             # END OF CAMERA SETTING 
 
@@ -240,16 +283,73 @@ def main(path_to_nav: str = None, auto: bool  = False, sv : tuple = ()) -> None 
             #earth = Sphere(radius=R, resolution=(50, 50), color=BLUE,)
             earth = OpenGLSurface(lambda u, v: (np.cos(u) *np.sin(v) , np.sin(u) * np.sin(v),np.cos(v)),u_range=(0, 2 * np.pi),v_range=(0, np.pi))
             earth = OpenGLTexturedSurface(earth, 'images/day.jpg', 'images/night.jpg')
+            earth.rotate(angle= np.pi, axis= DOWN, about_point= ORIGIN)
             # END OF EARTH SETTINGS 
-
-            self.play(Create(earth))
 
             # SECTION : MOBJECT CREATION 
             tupMobject = []
             for keys in navData.keys():
                 tupMobject.append(getOrbitalMobjects(keys , navData[keys]))
+            # END OF MOBJECTS CREATION
+            
 
-            print(tupMobject)
+        ## Scene Creation
+            # AXIS AND EARTH
+            if not no_axis:
+                self.play(FadeIn(ax)) # ADD AXES
+            
+            self.play(SpinInFromNothing(earth))
+            
+            # SATELLITE ANIMATION
+            animations = []
+            for sat, path, randCol in tupMobject:
+               path : Ellipse
+               path.set_fill(opacity = 0)
+               path.set_stroke(color= random_color(), opacity=0.44)
+
+               # IF SHOW TRAJECTORY
+               if trajectory:
+                animations.append(Create(path))
+               
+               animations.append(Create(sat))
+
+            
+            ## CREATE LEGEND 
+            legend = Table([[sv] for sv in navData.keys()], col_labels= [Text("Legend")], include_outer_lines=True)
+            
+            legend.scale( 1 / (1 + len(navData.keys())))
+            
+            legend.move_to(RIGHT * 6 + UP* 3)
+
+            row = 2
+            
+            legend.add_highlighted_cell((1,1), color=WHITE)
+            for sat, path, randCol in tupMobject:
+                sat: Dot3D
+                legend.add_highlighted_cell((row, 1),  color=randCol)
+                row += 1
+            
+            legend.fix_in_frame()
+            
+            ## END OF LEGEND 
+            
+            # CREATE SATELLITE
+            self.play(AnimationGroup(*animations), run_time = 2)
+
+            # SAT MOVING ANIMATION  
+            animations.clear()
+            
+            self.play(FadeIn(legend) , run_time = 2)
+            
+            for sat,  path, randCol in tupMobject:
+               animations.append(Move_along_edge(mobject= sat , path=path, rate_functions= linear))
+
+            self.play(*animations,  run_time=time)        
+            
+            
+            self.wait()
+            
+            
     
     
     with tempconfig({"renderer": "opengl" , "preview" : True, "fps" : 75}) :

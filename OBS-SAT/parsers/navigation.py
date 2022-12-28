@@ -51,6 +51,9 @@ def NAVIGATION(nav: xarray.Dataset, sv: str, epoch: np.datetime64, usageANIM : b
     ARGS: absolute path to rinex , Name of SV, Epoch time
     """
 
+    if usageANIM :
+        nav = nav.sel(sv = sv)
+        
     __extract = {}
 
     for attributes in __fields:
