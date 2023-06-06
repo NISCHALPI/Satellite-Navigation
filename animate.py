@@ -209,7 +209,7 @@ class Move_along_edge(Animation):
             self,
             mobject: Mobject,
             path: VMobject,
-            suspend_mobject_updating: bool | None = False,
+            suspend_mobject_updating: bool = False,
             **kwargs,
     ):
         super().__init__(mobject, path, suspend_mobject_updating, **kwargs, )
