@@ -32,6 +32,16 @@ manim==0.16.0.post0
 moderngl==5.6.4
 numpy==1.21.6
 ```
+To use the docker image, use the following commands,
+```Bash
+docker pull nischalpi/navigation:latest
+```
+To use local RINEX files, use docker volume bind,
+```Bash
+docker container run --rm -it -v $(path_your_rinex_data):/home/navigator nischalpi/navigation:latest
+```
+
+
 
 ## Triangulation Script
 
