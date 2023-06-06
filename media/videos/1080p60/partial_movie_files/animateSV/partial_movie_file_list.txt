@@ -1,6 +1,0 @@
-# This file is used internally by FFMPEG.
-file 'file:/home/hades/Satellite-Navigation/OBS-SAT/media/videos/1080p60/partial_movie_files/animateSV/2927947671_132317549_2365070951.mp4'
-file 'file:/home/hades/Satellite-Navigation/OBS-SAT/media/videos/1080p60/partial_movie_files/animateSV/3543431364_3355842195_1806492128.mp4'
-file 'file:/home/hades/Satellite-Navigation/OBS-SAT/media/videos/1080p60/partial_movie_files/animateSV/874407156_822525436_4152621489.mp4'
-file 'file:/home/hades/Satellite-Navigation/OBS-SAT/media/videos/1080p60/partial_movie_files/animateSV/2834465869_3602260926_2139367891.mp4'
-file 'file:/home/hades/Satellite-Navigation/OBS-SAT/media/videos/1080p60/partial_movie_files/animateSV/489265160_2645755730_532572767.mp4'
